@@ -1,0 +1,128 @@
+.body {
+    margin: 0px;
+    flex: 1 1 auto;
+    flex-wrap: wrap;
+}
+
+#toolbar {
+    height: 88px;
+    justify-content: flex-start;
+    display: flex;
+    flex-direction: row;
+}
+
+#toolbarTable {
+    height: 88px;
+    width: 100%;
+    display: flex;
+}
+
+#formName {
+    display: flex;
+    align-items: center;
+    font-size: 22px;
+    font-weight: 700;
+    text-align: center;
+    width: 21.52%;
+    box-sizing: border-box;
+    line-height: 1.5;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI',Roboto,'Helvetica Neue',Arial,'Noto Sans',sans-serif,
+    'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol','Noto Color Emoji';
+    overflow: hidden;
+    max-width: 340px;
+}
+
+.standardTD {
+    background-color: #8cc2e3;
+    border-color: #8cc2e3;
+    opacity: 1;
+    color: #8a8d8f;
+    border-radius: .25rem;
+    box-shadow: 0 1px 5px grey;
+    margin-left: 1px;
+}
+
+.customTD {
+    color: rgba(235,237,239,.6);
+    background-color: #0065c9;
+    border-color: #0065c9;
+    opacity: 1;
+    border-radius: .25rem;
+    box-shadow: 0 1px 5px grey;
+    margin-left: 1px;
+}
+
+.customCursor {
+    cursor: pointer;
+}
+
+.customTD:hover {
+    color: white;
+}
+
+.toolbarBottomText {
+    letter-spacing: 0.5px;
+    font-size: .8rem;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI' ,Roboto,'Helvetica Neue',Arial,'Noto Sans',sans-serif,
+    'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol','Noto Color Emoji';
+    white-space: nowrap;
+}
+
+.customToolbarButtonText {
+    margin-top: 1rem;
+    letter-spacing: 0.5px;
+    font-size: .8rem;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI' ,Roboto,'Helvetica Neue',Arial,'Noto Sans',sans-serif,
+    'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol','Noto Color Emoji';
+}
+
+.contentField {
+    height: 4.25rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+}
+
+.botField {
+    display: flex;
+    justify-content: right;
+    align-items: flex-end;
+}
+
+.botTextField {
+    width: 100% ;
+    display: flex;
+    justify-content: center;
+}
+
+.customIcon {
+    font-size: 0.8rem !important;
+    margin-right: 4px;
+}
+
+#statusDialog .ui-dialog-titlebar {
+    display: none;
+}
+
+#statusDialog_content {
+    background-color: transparent;
+    border: none;
+    overflow: hidden;
+}
+
+.noHeader.ui-datatable table thead tr {
+    display: none;
+}
+
+body .ui-datatable .ui-datatable-data>tr>td {
+    padding: 0;
+}
+
+body .ui-datatable .ui-datatable-header {
+    text-align: center;
+}
+
+.constTable.ui-datatable table t {
+    display: none;
+}

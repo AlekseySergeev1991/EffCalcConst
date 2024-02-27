@@ -1,0 +1,432 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+<h:head>
+   <h:outputStylesheet name="teconToolbarStyle.css" library="css"/>
+</h:head>
+<h:body>
+
+   <h:form id="effCalcConstForm">
+
+      <div id="toolbar">
+
+         <div id="formName">
+            <h:outputText value="АВТОМАТИЗИРОВАННЫЙ РАСЧЕТ ЭФФЕКТА"/>
+         </div>
+
+         <div id="toolbarTable" >
+            <div style="min-width: 310px;" class="standardTD">
+               <div class="contentField">
+                  <div style="width: 100%; height: 100%">
+                     <ui:insert name="calendar"/>
+                  </div>
+               </div>
+               <div class="botField">
+                  <div class="botTextField">
+                     <h:outputText value="Календарь" styleClass="toolbarBottomText"/>
+                  </div>
+                  <div>
+                     <i class="fa fa-calendar customIcon"/>
+                  </div>
+               </div>
+            </div>
+
+            <div class="standardTD" style="width: inherit;">
+               <div class="contentField">
+                  <div style="width: 100%; height: 100%">
+                     <ui:insert name="parameters"/>
+                  </div>
+               </div>
+               <div class="botField">
+                  <div class="botTextField">
+                     <h:outputText value="Установки и параметры" styleClass="toolbarBottomText"/>
+                  </div>
+                  <div>
+                     <i class="fa fa-sliders fa-rotate-90 customIcon"/>
+                  </div>
+               </div>
+            </div>
+
+            <div class="standardTD" style="min-width: 60px;">
+               <div class="contentField">
+                  <h:outputText value="Пуск" styleClass="customToolbarButtonText"/>
+                  <ui:insert name="start"/>
+               </div>
+               <div class="botField">
+                  <div>
+                     <i class="fa fa-power-off customIcon"/>
+                  </div>
+               </div>
+            </div>
+
+            <div class="standardTD" style="min-width: 60px;">
+               <div class="contentField">
+                  <h:outputText value="Переход" styleClass="customToolbarButtonText"/>
+                  <ui:insert name="transition"/>
+               </div>
+               <div class="botField">
+                  <div>
+                     <i class="fa fa-sitemap fa-rotate-270 customIcon"/>
+                  </div>
+               </div>
+            </div>
+
+            <div class="standardTD" style="min-width: 60px;" >
+               <div class="contentField">
+                  <h:outputText value="График" styleClass="customToolbarButtonText"/>
+                  <ui:insert name="graph"/>
+               </div>
+               <div class="botField">
+
+                  <div>
+                     <i class="fa fa-bar-chart customIcon"/>
+                  </div>
+               </div>
+            </div>
+
+            <div class="standardTD" style="min-width: 60px;">
+               <div class="contentField">
+                  <h:outputText value="Отчет" styleClass="customToolbarButtonText"/>
+                  <ui:insert name="report"/>
+               </div>
+               <div class="botField">
+
+                  <div>
+                     <i class="fa fa-clone customIcon"/>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+
+      <div style="height: 30px; width: 100%; text-align: center; margin-top: 5px">
+         <h:outputText value="Справочник нормативных значений для расчета эффекта от применения алгоритмов" style="line-height: 30px;
+        font-size: 20px; font-weight: 700;"/>
+      </div>
+
+      <div>
+         <div >
+            <p:dataTable id="constTable" var="constData" widgetVar="constTable" value=""
+                         showGridlines="true" editable="#{effCalcConst.write}" rowKey="#{constData.id}">
+
+               <p:column headerText="№ п/п" width="5%" style="text-align: center" styleClass="constTable">
+               </p:column>
+               <p:column headerText="Наименование показателя" styleClass="constTable">
+               </p:column>
+               <p:column headerText="Константа" width="10%" style="text-align: center" styleClass="constTable">
+               </p:column>
+               <p:column headerText="Ед. изм" width="10%" style="text-align: center" styleClass="constTable">
+               </p:column>
+               <p:column headerText="Значение" width="10%" style="text-align: center" styleClass="constTable">
+               </p:column>
+               <p:column headerText="Редактирование (ФИО)" width="10%" styleClass="constTable">
+               </p:column>
+               <p:column width="80" style="text-align: center" rendered="#{effCalcConst.write}" styleClass="constTable">
+               </p:column>
+
+            </p:dataTable>
+         </div>
+      </div>
+
+      <div >
+         <div >
+            <p:dataTable id="constTable1" var="constData1" widgetVar="constTable1" value="#{effCalcConst.tariff}"
+                         showGridlines="true" styleClass="noHeader" editable="#{effCalcConst.write}"
+                         rowKey="#{constData1.id}">
+
+               <p:ajax event="rowEdit" listener="#{effCalcConst.onRowEdit}" process="constTable1"
+                       onstart="PF('statusDialog').show();"
+                       onsuccess="PF('statusDialog').hide();"
+               />
+
+               <f:facet name="header" >
+                  <h:outputText value="Тарифы" style="text-align: center"/>
+               </f:facet>
+
+               <p:column style="width: 6.7%; text-align: center">
+                  <h:outputText style="display: block;" value="#{constData1.num}"/>
+               </p:column>
+               <p:column >
+                  <h:outputText style="display: block;" escape="false" value="#{constData1.name}" />
+               </p:column>
+               <p:column style="width: 11.75%; text-align: center">
+                  <h:outputText style="display: block;" escape="false" value="#{constData1.shortName}" />
+               </p:column>
+               <p:column style="width: 11.7%; text-align: center">
+                  <h:outputText style="display: block;" escape="false" value="#{constData1.measure}" />
+               </p:column>
+               <p:column style="width: 11.8%; text-align: center">
+                  <p:cellEditor disabled="#{!effCalcConst.write}">
+                     <f:facet name="output">
+                        <h:outputText style="display: block;" escape="false" value="#{constData1.value}" />
+                     </f:facet>
+                     <f:facet name="input">
+                        <p:inputNumber value="#{constData1.value}" decimalPlaces="3"/>
+                     </f:facet>
+                  </p:cellEditor>
+               </p:column>
+               <p:column style="width: 11.7%">
+                  <h:outputText style="display: block;" escape="false" value="#{constData1.edit}" />
+               </p:column>
+               <p:column  style="text-align: center; width: 113px" rendered="#{effCalcConst.write}">
+                  <p:rowEditor editTitle="Изменить строку" cancelTitle="Отменить изменения" saveTitle="Сохранить строку" />
+               </p:column>
+            </p:dataTable>
+         </div>
+      </div>
+
+
+      <div >
+         <div >
+            <p:dataTable id="constTable2" var="constData2" widgetVar="constTable2" value="#{effCalcConst.wage}"
+                         showGridlines="true" styleClass="noHeader" editable="#{effCalcConst.write}"
+                         rowKey="#{constData2.id}">
+
+               <p:ajax event="rowEdit" listener="#{effCalcConst.onRowEdit}" process="constTable2"
+                       onstart="PF('statusDialog').show();"
+                       onsuccess="PF('statusDialog').hide();"
+               />
+
+               <f:facet name="header" >
+                  <h:outputText value="Заработная плата" style="text-align: center"/>
+               </f:facet>
+
+               <p:column style="width: 6.7%; text-align: center">
+                  <h:outputText style="display: block;" value="#{constData2.num}"/>
+               </p:column>
+               <p:column >
+                  <h:outputText style="display: block;" escape="false" value="#{constData2.name}" />
+               </p:column>
+               <p:column style="width: 11.75%; text-align: center">
+                  <h:outputText style="display: block;" escape="false" value="#{constData2.shortName}" />
+               </p:column>
+               <p:column style="width: 11.7%; text-align: center">
+                  <h:outputText style="display: block;" escape="false" value="#{constData2.measure}" />
+               </p:column>
+               <p:column style="width: 11.8%; text-align: center">
+                  <p:cellEditor disabled="#{!effCalcConst.write}">
+                     <f:facet name="output">
+                        <h:outputText style="display: block;" escape="false" value="#{constData2.value}" />
+                     </f:facet>
+                     <f:facet name="input">
+                        <p:inputNumber value="#{constData2.value}" decimalPlaces="3"/>
+                     </f:facet>
+                  </p:cellEditor>
+               </p:column>
+               <p:column style="width: 11.7%">
+                  <h:outputText style="display: block;" escape="false" value="#{constData2.edit}" />
+               </p:column>
+               <p:column  style="text-align: center; width: 113px" rendered="#{effCalcConst.write}">
+                  <p:rowEditor editTitle="Изменить строку" cancelTitle="Отменить изменения" saveTitle="Сохранить строку" />
+               </p:column>
+            </p:dataTable>
+         </div>
+      </div>
+
+      <div >
+         <div >
+            <p:dataTable id="constTable3" var="constData3" widgetVar="constTable3" value="#{effCalcConst.alg3_2_1}"
+                         showGridlines="true" styleClass="noHeader" editable="#{effCalcConst.write}"
+                         rowKey="#{constData3.id}">
+
+               <p:ajax event="rowEdit" listener="#{effCalcConst.onRowEdit}" process="constTable3"
+                       onstart="PF('statusDialog').show();"
+                       onsuccess="PF('statusDialog').hide();"
+               />
+
+               <f:facet name="header" >
+                  <h:outputText value="Значения для алгоритма 3.2.1 «Оценка достоверности измерений»" style="text-align: center"/>
+               </f:facet>
+
+               <p:column style="width: 6.7%; text-align: center">
+                  <h:outputText style="display: block;" value="#{constData3.num}"/>
+               </p:column>
+               <p:column >
+                  <h:outputText style="display: block;" escape="false" value="#{constData3.name}" />
+               </p:column>
+               <p:column style="width: 11.75%; text-align: center">
+                  <h:outputText style="display: block;" escape="false" value="#{constData3.shortName}" />
+               </p:column>
+               <p:column style="width: 11.7%; text-align: center">
+                  <h:outputText style="display: block;" escape="false" value="#{constData3.measure}" />
+               </p:column>
+               <p:column style="width: 11.8%; text-align: center">
+                  <p:cellEditor disabled="#{!effCalcConst.write}">
+                     <f:facet name="output">
+                        <h:outputText style="display: block;" escape="false" value="#{constData3.value}" />
+                     </f:facet>
+                     <f:facet name="input">
+                        <p:inputNumber value="#{constData3.value}" decimalPlaces="3"/>
+                     </f:facet>
+                  </p:cellEditor>
+               </p:column>
+               <p:column style="width: 11.7%">
+                  <h:outputText style="display: block;" escape="false" value="#{constData3.edit}" />
+               </p:column>
+               <p:column  style="text-align: center; width: 113px" rendered="#{effCalcConst.write}">
+                  <p:rowEditor editTitle="Изменить строку" cancelTitle="Отменить изменения" saveTitle="Сохранить строку" />
+               </p:column>
+            </p:dataTable>
+         </div>
+      </div>
+
+      <div >
+         <div >
+            <p:dataTable id="constTable4" var="constData4" widgetVar="constTable4" value="#{effCalcConst.alg3_2_2}"
+                         showGridlines="true" styleClass="noHeader" editable="#{effCalcConst.write}"
+                         rowKey="#{constData4.id}">
+
+               <p:ajax event="rowEdit" listener="#{effCalcConst.onRowEdit}" process="constTable4"
+                       onstart="PF('statusDialog').show();"
+                       onsuccess="PF('statusDialog').hide();"
+               />
+
+               <f:facet name="header" >
+                  <h:outputText value="Значения для алгоритмов 3.2.2 «Определение утечки теплоносителя путём анализа G1-G2»" style="text-align: left"/>
+                  <h:outputText value="                        3.2.3 «Определение утечки теплоносителя путём анализа G3-G4»" style="text-align: left"/>
+                  <h:outputText value="                        3.2.4 «Определение утечки теплоносителя путём анализа GП»" style="text-align: left"/>
+                  <h:outputText value="                        3.2.5 «Определение утечки горячей воды путём анализа G7-G13»" style="text-align: left"/>
+                  <h:outputText value="                        3.2.6 «Определение утечки горячей воды путём анализа GХВ»" style="text-align: left"/>
+                  <h:outputText value="                        3.2.7 «Определение утечки горячей воды путём анализа»" style="text-align: left"/>
+               </f:facet>
+
+               <p:column style="width: 6.7%; text-align: center">
+                  <h:outputText style="display: block;" value="#{constData4.num}"/>
+               </p:column>
+               <p:column >
+                  <h:outputText style="display: block;" escape="false" value="#{constData4.name}" />
+               </p:column>
+               <p:column style="width: 11.75%; text-align: center">
+                  <h:outputText style="display: block;" escape="false" value="#{constData4.shortName}" />
+               </p:column>
+               <p:column style="width: 11.7%; text-align: center">
+                  <h:outputText style="display: block;" escape="false" value="#{constData4.measure}" />
+               </p:column>
+               <p:column style="width: 11.8%; text-align: center">
+                  <p:cellEditor disabled="#{!effCalcConst.write}">
+                     <f:facet name="output">
+                        <h:outputText style="display: block;" escape="false" value="#{constData4.value}" />
+                     </f:facet>
+                     <f:facet name="input">
+                        <p:inputNumber value="#{constData4.value}" decimalPlaces="3"/>
+                     </f:facet>
+                  </p:cellEditor>
+               </p:column>
+               <p:column style="width: 11.7%">
+                  <h:outputText style="display: block;" escape="false" value="#{constData4.edit}" />
+               </p:column>
+               <p:column  style="text-align: center; width: 113px" rendered="#{effCalcConst.write}">
+                  <p:rowEditor editTitle="Изменить строку" cancelTitle="Отменить изменения" saveTitle="Сохранить строку" />
+               </p:column>
+            </p:dataTable>
+         </div>
+      </div>
+
+      <div >
+         <div >
+            <p:dataTable id="constTable5" var="constData5" widgetVar="constTable5" value="#{effCalcConst.alg3_2_8}"
+                         showGridlines="true" styleClass="noHeader" editable="#{effCalcConst.write}"
+                         rowKey="#{constData5.id}">
+
+               <p:ajax event="rowEdit" listener="#{effCalcConst.onRowEdit}" process="constTable5"
+                       onstart="PF('statusDialog').show();"
+                       onsuccess="PF('statusDialog').hide();"
+               />
+
+               <f:facet name="header" >
+                  <h:outputText value="Значения для алгоритма 3.2.8 «Устранение аварийных ситуаций (отклонения Т1, Т3, Т7 и   ΔР3-4, ΔР7-13 »" style="text-align: center"/>
+               </f:facet>
+
+               <p:column style="width: 6.7%; text-align: center">
+                  <h:outputText style="display: block;" value="#{constData5.num}"/>
+               </p:column>
+               <p:column >
+                  <h:outputText style="display: block;" escape="false" value="#{constData5.name}" />
+               </p:column>
+               <p:column style="width: 11.75%; text-align: center">
+                  <h:outputText style="display: block;" escape="false" value="#{constData5.shortName}" />
+               </p:column>
+               <p:column style="width: 11.7%; text-align: center">
+                  <h:outputText style="display: block;" escape="false" value="#{constData5.measure}" />
+               </p:column>
+               <p:column style="width: 11.8%; text-align: center">
+                  <p:cellEditor disabled="#{!effCalcConst.write}">
+                     <f:facet name="output">
+                        <h:outputText style="display: block;" escape="false" value="#{constData5.value}" />
+                     </f:facet>
+                     <f:facet name="input">
+                        <p:inputNumber value="#{constData5.value}" decimalPlaces="3"/>
+                     </f:facet>
+                  </p:cellEditor>
+               </p:column>
+               <p:column style="width: 11.7%">
+                  <h:outputText style="display: block;" escape="false" value="#{constData5.edit}" />
+               </p:column>
+               <p:column  style="text-align: center; width: 113px" rendered="#{effCalcConst.write}">
+                  <p:rowEditor editTitle="Изменить строку" cancelTitle="Отменить изменения" saveTitle="Сохранить строку" />
+               </p:column>
+            </p:dataTable>
+         </div>
+      </div>
+
+      <div >
+         <div >
+            <p:dataTable id="constTable6" var="constData6" widgetVar="constTable6" value="#{effCalcConst.alg3_2_10}"
+                         showGridlines="true" styleClass="noHeader" editable="#{effCalcConst.write}"
+                         rowKey="#{constData6.id}">
+
+               <p:ajax event="rowEdit" listener="#{effCalcConst.onRowEdit}" process="constTable6"
+                       onstart="PF('statusDialog').show();"
+                       onsuccess="PF('statusDialog').hide();"
+               />
+
+               <f:facet name="header" >
+                  <h:outputText value="Значения для алгоритма 3.2.10 алгоритма «Выявление и устранение причин занижения температуры и/или изменения циркуляционных расходов воды в системах отопления»" style="text-align: center"/>
+               </f:facet>
+
+               <p:column style="width: 6.7%; text-align: center">
+                  <h:outputText style="display: block;" value="#{constData6.num}"/>
+               </p:column>
+               <p:column >
+                  <h:outputText style="display: block;" escape="false" value="#{constData6.name}" />
+               </p:column>
+               <p:column style="width: 11.75%; text-align: center">
+                  <h:outputText style="display: block;" escape="false" value="#{constData6.shortName}" />
+               </p:column>
+               <p:column style="width: 11.7%; text-align: center">
+                  <h:outputText style="display: block;" escape="false" value="#{constData6.measure}" />
+               </p:column>
+               <p:column style="width: 11.8%; text-align: center">
+                  <p:cellEditor disabled="#{!effCalcConst.write}">
+                     <f:facet name="output">
+                        <h:outputText style="display: block;" escape="false" value="#{constData6.value}" />
+                     </f:facet>
+                     <f:facet name="input">
+                        <p:inputNumber value="#{constData6.value}" decimalPlaces="3"/>
+                     </f:facet>
+                  </p:cellEditor>
+               </p:column>
+               <p:column style="width: 11.7%">
+                  <h:outputText style="display: block;" escape="false" value="#{constData6.edit}" />
+               </p:column>
+               <p:column  style="text-align: center; width: 113px" rendered="#{effCalcConst.write}">
+                  <p:rowEditor editTitle="Изменить строку" cancelTitle="Отменить изменения" saveTitle="Сохранить строку" />
+               </p:column>
+            </p:dataTable>
+         </div>
+      </div>
+
+   </h:form>
+
+   <p:dialog id="statusDialog" modal="true" widgetVar="statusDialog" draggable="false" closable="false"
+             resizable="false" style="box-shadow: none;" position="center center" onShow="PF('statusDialog').initPosition();">
+      <i class="pi pi-spinner pi-spin" style="font-size: 5rem;" />
+   </p:dialog>
+
+</h:body>
+</html>
