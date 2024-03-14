@@ -1,0 +1,11 @@
+.centre-column {
+    text-align: center;
+}
+
+body .ui-dialog .ui-dialog-titlebar {
+    background: #fff;
+    color: #495057;
+    font-weight: 700;
+    border-bottom: 0 none;
+    padding: 5px 10px 0 0;
+}

@@ -2,18 +2,19 @@ package ru.tecon.effCalcConst.ejb;
 
 import org.postgresql.util.PSQLException;
 import ru.tecon.effCalcConst.SystemParamException;
-import ru.tecon.effCalcConst.cdi.EffCalcConstMB;
 import ru.tecon.effCalcConst.model.Const;
+import ru.tecon.effCalcConst.model.ParamHistory;
 
 import javax.annotation.Resource;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
-import javax.inject.Inject;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -34,9 +35,8 @@ public class EffCalcConstSB {
             "order by  const_group_id, id_const";
     private static final String UPDATE_CONST = "call eff_calc_001.update_constant_p (?,?,?,?)";
     private static final String GET_IP = "select eff_calc_001.get_active_session_ip(?)";
+    private static final String HISTORY = "SELECT * FROM eff_calc_001.const_history_f(?)";
 
-//    @Inject
-//    Logger logger;
 
     @Resource(name = "jdbc/DataSourceR")
     private DataSource dsR;
@@ -82,7 +82,6 @@ public class EffCalcConstSB {
             stm.setString(2, user_id);
             stm.setString(3, const_id);
             stm.setString(4, new_value);
-            System.out.println("Что передаем " + ip_addr + " " + user_id + " " + const_id + " " + new_value);
             stm.executeUpdate();
         } catch (SQLException e) {
             logger.log(Level.WARNING, "saving error Enum Param", e);
@@ -114,5 +113,33 @@ public class EffCalcConstSB {
             logger.log(Level.WARNING, "get IP error", e);
         }
         return null;
+    }
+
+    /**
+     * Получение списка изменений показателей
+     * @param constId - id показателя
+     * @return ip в строковом представлении
+     */
+    public List<ParamHistory> getParamHistory(int constId) {
+        List<ParamHistory> result = new ArrayList<>();
+        try (Connection connect = dsR.getConnection();
+             PreparedStatement stm = connect.prepareStatement(HISTORY)) {
+            stm.setInt(1, constId);
+
+            ResultSet res = stm.executeQuery();
+            while (res.next()) {
+                DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+                LocalDateTime dateLDT = res.getTimestamp("date_time").toLocalDateTime();
+                String date = dateLDT.format(dtf);
+                ParamHistory paramHistory = new ParamHistory(date, res.getString("new_value"),
+                        res.getString("user_name"), res.getString("const_name"), res.getString("old_value"));
+
+                result.add(paramHistory);
+            }
+
+        } catch (SQLException e) {
+            logger.log(Level.WARNING, "error getting param history");
+        }
+        return result;
     }
 }

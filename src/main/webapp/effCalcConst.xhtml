@@ -8,8 +8,13 @@
       xmlns:p="http://primefaces.org/ui">
 <h:head>
    <h:outputStylesheet name="teconToolbarStyle.css" library="css"/>
+   <h:outputStylesheet name="style.css" library="css"/>
+   <h:outputStylesheet name="/font-awesome/6.4.2/css/all.min-jsf.css" library="webjars"/>
+   <h:outputStylesheet name="/font-awesome/6.4.2/css/v4-shims.min-jsf.css" library="webjars"/>
 </h:head>
 <h:body>
+   <p:growl id="growl" showDetail="true" />
+
 
    <h:form id="effCalcConstForm">
 
@@ -89,7 +94,7 @@
                </div>
             </div>
 
-            <div class="standardTD" style="min-width: 60px;">
+            <div class="customTD customCursor" style="min-width: 60px;" id="report" onclick="window.open('loadReport?id=0'); return false">
                <div class="contentField">
                   <h:outputText value="Отчет" styleClass="customToolbarButtonText"/>
                   <ui:insert name="report"/>
@@ -120,11 +125,11 @@
                </p:column>
                <p:column headerText="Константа" width="10%" style="text-align: center" styleClass="constTable">
                </p:column>
-               <p:column headerText="Ед. изм" width="10%" style="text-align: center" styleClass="constTable">
+               <p:column headerText="Ед. изм" width="6%" style="text-align: center" styleClass="constTable">
                </p:column>
-               <p:column headerText="Значение" width="10%" style="text-align: center" styleClass="constTable">
+               <p:column headerText="Значение" width="6%" style="text-align: center" styleClass="constTable">
                </p:column>
-               <p:column headerText="Редактирование (ФИО)" width="10%" styleClass="constTable">
+               <p:column headerText="Редактирование (ФИО)" width="15%" styleClass="constTable">
                </p:column>
                <p:column width="80" style="text-align: center" rendered="#{effCalcConst.write}" styleClass="constTable">
                </p:column>
@@ -141,11 +146,17 @@
 
                <p:ajax event="rowEdit" listener="#{effCalcConst.onRowEdit}" process="constTable1"
                        onstart="PF('statusDialog').show();"
-                       onsuccess="PF('statusDialog').hide();"
+                       onsuccess="PF('statusDialog').hide();" update=":growl"
                />
 
                <f:facet name="header" >
-                  <h:outputText value="Тарифы" style="text-align: center"/>
+                  <table>
+                     <tr>
+                        <th>
+                           <h:outputText value="Тарифы" style="text-align: center"/>
+                        </th>
+                     </tr>
+                  </table>
                </f:facet>
 
                <p:column style="width: 6.7%; text-align: center">
@@ -157,20 +168,29 @@
                <p:column style="width: 11.75%; text-align: center">
                   <h:outputText style="display: block;" escape="false" value="#{constData1.shortName}" />
                </p:column>
-               <p:column style="width: 11.7%; text-align: center">
+               <p:column style="width: 7.7%; text-align: center">
                   <h:outputText style="display: block;" escape="false" value="#{constData1.measure}" />
                </p:column>
-               <p:column style="width: 11.8%; text-align: center">
+               <p:column style="width: 7.8%; text-align: center">
                   <p:cellEditor disabled="#{!effCalcConst.write}">
                      <f:facet name="output">
-                        <h:outputText style="display: block;" escape="false" value="#{constData1.value}" />
+                        <p:outputPanel id="constTable1Panel">
+                           <h:outputText style="display: block;" escape="false" value="#{constData1.value}" />
+
+                           <p:contextMenu id="constTable1Context" for="constTable1Panel">
+                              <p:menuitem value="Посмотреть историю"
+                                          action="#{effCalcConst.loadHistData(constData1.name,constData1.id)}"
+                                          oncomplete="PF('historyDialog').show()"
+                                          update="historyDialogID" process="@this" />
+                           </p:contextMenu>
+                        </p:outputPanel>
                      </f:facet>
                      <f:facet name="input">
                         <p:inputNumber value="#{constData1.value}" decimalPlaces="3"/>
                      </f:facet>
                   </p:cellEditor>
                </p:column>
-               <p:column style="width: 11.7%">
+               <p:column style="width: 16.7%">
                   <h:outputText style="display: block;" escape="false" value="#{constData1.edit}" />
                </p:column>
                <p:column  style="text-align: center; width: 113px" rendered="#{effCalcConst.write}">
@@ -189,11 +209,17 @@
 
                <p:ajax event="rowEdit" listener="#{effCalcConst.onRowEdit}" process="constTable2"
                        onstart="PF('statusDialog').show();"
-                       onsuccess="PF('statusDialog').hide();"
+                       onsuccess="PF('statusDialog').hide();" update=":growl"
                />
 
                <f:facet name="header" >
-                  <h:outputText value="Заработная плата" style="text-align: center"/>
+                  <table>
+                     <tr>
+                        <th>
+                           <h:outputText value="Заработная плата" style="text-align: center"/>
+                        </th>
+                     </tr>
+                  </table>
                </f:facet>
 
                <p:column style="width: 6.7%; text-align: center">
@@ -205,20 +231,29 @@
                <p:column style="width: 11.75%; text-align: center">
                   <h:outputText style="display: block;" escape="false" value="#{constData2.shortName}" />
                </p:column>
-               <p:column style="width: 11.7%; text-align: center">
+               <p:column style="width: 7.7%; text-align: center">
                   <h:outputText style="display: block;" escape="false" value="#{constData2.measure}" />
                </p:column>
-               <p:column style="width: 11.8%; text-align: center">
+               <p:column style="width: 7.8%; text-align: center">
                   <p:cellEditor disabled="#{!effCalcConst.write}">
                      <f:facet name="output">
-                        <h:outputText style="display: block;" escape="false" value="#{constData2.value}" />
+                        <p:outputPanel id="constTable2Panel">
+                           <h:outputText style="display: block;" escape="false" value="#{constData2.value}" />
+
+                           <p:contextMenu id="constTable2Context" for="constTable2Panel">
+                              <p:menuitem value="Посмотреть историю"
+                                          action="#{effCalcConst.loadHistData(constData2.name,constData2.id)}"
+                                          oncomplete="PF('historyDialog').show()"
+                                          update="historyDialogID" process="@this" />
+                           </p:contextMenu>
+                        </p:outputPanel>
                      </f:facet>
                      <f:facet name="input">
                         <p:inputNumber value="#{constData2.value}" decimalPlaces="3"/>
                      </f:facet>
                   </p:cellEditor>
                </p:column>
-               <p:column style="width: 11.7%">
+               <p:column style="width: 16.7%">
                   <h:outputText style="display: block;" escape="false" value="#{constData2.edit}" />
                </p:column>
                <p:column  style="text-align: center; width: 113px" rendered="#{effCalcConst.write}">
@@ -236,11 +271,17 @@
 
                <p:ajax event="rowEdit" listener="#{effCalcConst.onRowEdit}" process="constTable3"
                        onstart="PF('statusDialog').show();"
-                       onsuccess="PF('statusDialog').hide();"
+                       onsuccess="PF('statusDialog').hide();" update=":growl"
                />
 
                <f:facet name="header" >
-                  <h:outputText value="Значения для алгоритма 3.2.1 «Оценка достоверности измерений»" style="text-align: center"/>
+                  <table>
+                     <tr>
+                        <th>
+                           <h:outputText value="Значения для алгоритма 3.2.1 «Оценка достоверности измерений»" style="text-align: center"/>
+                        </th>
+                     </tr>
+                  </table>
                </f:facet>
 
                <p:column style="width: 6.7%; text-align: center">
@@ -252,20 +293,29 @@
                <p:column style="width: 11.75%; text-align: center">
                   <h:outputText style="display: block;" escape="false" value="#{constData3.shortName}" />
                </p:column>
-               <p:column style="width: 11.7%; text-align: center">
+               <p:column style="width: 7.7%; text-align: center">
                   <h:outputText style="display: block;" escape="false" value="#{constData3.measure}" />
                </p:column>
-               <p:column style="width: 11.8%; text-align: center">
+               <p:column style="width: 7.8%; text-align: center">
                   <p:cellEditor disabled="#{!effCalcConst.write}">
                      <f:facet name="output">
-                        <h:outputText style="display: block;" escape="false" value="#{constData3.value}" />
+                        <p:outputPanel id="constTable3Panel">
+                           <h:outputText style="display: block;" escape="false" value="#{constData3.value}" />
+
+                           <p:contextMenu id="constTable3Context" for="constTable3Panel">
+                              <p:menuitem value="Посмотреть историю"
+                                          action="#{effCalcConst.loadHistData(constData3.name,constData3.id)}"
+                                          oncomplete="PF('historyDialog').show()"
+                                          update="historyDialogID" process="@this" />
+                           </p:contextMenu>
+                        </p:outputPanel>
                      </f:facet>
                      <f:facet name="input">
                         <p:inputNumber value="#{constData3.value}" decimalPlaces="3"/>
                      </f:facet>
                   </p:cellEditor>
                </p:column>
-               <p:column style="width: 11.7%">
+               <p:column style="width: 16.7%">
                   <h:outputText style="display: block;" escape="false" value="#{constData3.edit}" />
                </p:column>
                <p:column  style="text-align: center; width: 113px" rendered="#{effCalcConst.write}">
@@ -283,16 +333,51 @@
 
                <p:ajax event="rowEdit" listener="#{effCalcConst.onRowEdit}" process="constTable4"
                        onstart="PF('statusDialog').show();"
-                       onsuccess="PF('statusDialog').hide();"
+                       onsuccess="PF('statusDialog').hide();" update=":growl "
                />
 
                <f:facet name="header" >
-                  <h:outputText value="Значения для алгоритмов 3.2.2 «Определение утечки теплоносителя путём анализа G1-G2»" style="text-align: left"/>
-                  <h:outputText value="                        3.2.3 «Определение утечки теплоносителя путём анализа G3-G4»" style="text-align: left"/>
-                  <h:outputText value="                        3.2.4 «Определение утечки теплоносителя путём анализа GП»" style="text-align: left"/>
-                  <h:outputText value="                        3.2.5 «Определение утечки горячей воды путём анализа G7-G13»" style="text-align: left"/>
-                  <h:outputText value="                        3.2.6 «Определение утечки горячей воды путём анализа GХВ»" style="text-align: left"/>
-                  <h:outputText value="                        3.2.7 «Определение утечки горячей воды путём анализа»" style="text-align: left"/>
+
+                  <table style="width: 100%">
+                     <tr>
+                        <th style="width: 40%">
+                           <h:outputText value="Значения для алгоритмов: " style="display: flex;justify-content: end; margin-right: 30px;"/>
+                        </th>
+                        <th style="text-align: left; width: 60%">
+                           <h:outputText value="3.2.2 «Определение утечки теплоносителя путём анализа G1-G2»" />
+                        </th>
+                     </tr>
+                     <tr>
+                        <th></th>
+                        <th style="text-align: left;">
+                           <h:outputText value="3.2.3 «Определение утечки теплоносителя путём анализа G3-G4»"/>
+                        </th>
+                     </tr>
+                     <tr>
+                        <th></th>
+                        <th style="text-align: left;">
+                           <h:outputText value="3.2.4 «Определение утечки теплоносителя путём анализа GП»"/>
+                        </th>
+                     </tr>
+                     <tr>
+                        <th></th>
+                        <th style="text-align: left;">
+                           <h:outputText value="3.2.5 «Определение утечки горячей воды путём анализа G7-G13»"/>
+                        </th>
+                     </tr>
+                     <tr>
+                        <th></th>
+                        <th style="text-align: left;">
+                           <h:outputText value="3.2.6 «Определение утечки горячей воды путём анализа GХВ»"/>
+                        </th>
+                     </tr>
+                     <tr>
+                        <th></th>
+                        <th style="text-align: left;">
+                           <h:outputText value="3.2.7 «Определение утечки горячей воды путём анализа»"/>
+                        </th>
+                     </tr>
+                  </table>
                </f:facet>
 
                <p:column style="width: 6.7%; text-align: center">
@@ -304,20 +389,29 @@
                <p:column style="width: 11.75%; text-align: center">
                   <h:outputText style="display: block;" escape="false" value="#{constData4.shortName}" />
                </p:column>
-               <p:column style="width: 11.7%; text-align: center">
+               <p:column style="width: 7.7%; text-align: center">
                   <h:outputText style="display: block;" escape="false" value="#{constData4.measure}" />
                </p:column>
-               <p:column style="width: 11.8%; text-align: center">
+               <p:column style="width: 7.8%; text-align: center">
                   <p:cellEditor disabled="#{!effCalcConst.write}">
                      <f:facet name="output">
-                        <h:outputText style="display: block;" escape="false" value="#{constData4.value}" />
+                        <p:outputPanel id="constTable4Panel">
+                           <h:outputText style="display: block;" escape="false" value="#{constData4.value}" />
+
+                           <p:contextMenu id="constTable4Context" for="constTable4Panel">
+                              <p:menuitem value="Посмотреть историю"
+                                          action="#{effCalcConst.loadHistData(constData4.name,constData4.id)}"
+                                          oncomplete="PF('historyDialog').show()"
+                                          update="historyDialogID" process="@this" />
+                           </p:contextMenu>
+                        </p:outputPanel>
                      </f:facet>
                      <f:facet name="input">
                         <p:inputNumber value="#{constData4.value}" decimalPlaces="3"/>
                      </f:facet>
                   </p:cellEditor>
                </p:column>
-               <p:column style="width: 11.7%">
+               <p:column style="width: 16.7%">
                   <h:outputText style="display: block;" escape="false" value="#{constData4.edit}" />
                </p:column>
                <p:column  style="text-align: center; width: 113px" rendered="#{effCalcConst.write}">
@@ -335,11 +429,17 @@
 
                <p:ajax event="rowEdit" listener="#{effCalcConst.onRowEdit}" process="constTable5"
                        onstart="PF('statusDialog').show();"
-                       onsuccess="PF('statusDialog').hide();"
+                       onsuccess="PF('statusDialog').hide();" update=":growl"
                />
 
                <f:facet name="header" >
-                  <h:outputText value="Значения для алгоритма 3.2.8 «Устранение аварийных ситуаций (отклонения Т1, Т3, Т7 и   ΔР3-4, ΔР7-13 »" style="text-align: center"/>
+                  <table>
+                     <tr>
+                        <th>
+                           <h:outputText value="Значения для алгоритма 3.2.8 «Устранение аварийных ситуаций (отклонения Т1, Т3, Т7 и   ΔР3-4, ΔР7-13) »" style="text-align: center"/>
+                        </th>
+                     </tr>
+                  </table>
                </f:facet>
 
                <p:column style="width: 6.7%; text-align: center">
@@ -351,20 +451,30 @@
                <p:column style="width: 11.75%; text-align: center">
                   <h:outputText style="display: block;" escape="false" value="#{constData5.shortName}" />
                </p:column>
-               <p:column style="width: 11.7%; text-align: center">
+               <p:column style="width: 7.7%; text-align: center">
                   <h:outputText style="display: block;" escape="false" value="#{constData5.measure}" />
                </p:column>
-               <p:column style="width: 11.8%; text-align: center">
+               <p:column style="width: 7.8%; text-align: center">
                   <p:cellEditor disabled="#{!effCalcConst.write}">
                      <f:facet name="output">
-                        <h:outputText style="display: block;" escape="false" value="#{constData5.value}" />
+                        <p:outputPanel id="constTable5Panel">
+                           <h:outputText style="display: block;" escape="false" value="#{constData5.value}" />
+
+                           <p:contextMenu id="constTable5Context" for="constTable5Panel">
+                              <p:menuitem value="Посмотреть историю"
+                                          action="#{effCalcConst.loadHistData(constData5.name,constData5.id)}"
+                                          oncomplete="PF('historyDialog').show()"
+                                          update="historyDialogID" process="@this" />
+
+                           </p:contextMenu>
+                        </p:outputPanel>
                      </f:facet>
                      <f:facet name="input">
                         <p:inputNumber value="#{constData5.value}" decimalPlaces="3"/>
                      </f:facet>
                   </p:cellEditor>
                </p:column>
-               <p:column style="width: 11.7%">
+               <p:column style="width: 16.7%">
                   <h:outputText style="display: block;" escape="false" value="#{constData5.edit}" />
                </p:column>
                <p:column  style="text-align: center; width: 113px" rendered="#{effCalcConst.write}">
@@ -382,11 +492,17 @@
 
                <p:ajax event="rowEdit" listener="#{effCalcConst.onRowEdit}" process="constTable6"
                        onstart="PF('statusDialog').show();"
-                       onsuccess="PF('statusDialog').hide();"
+                       onsuccess="PF('statusDialog').hide();" update=":growl"
                />
 
                <f:facet name="header" >
-                  <h:outputText value="Значения для алгоритма 3.2.10 алгоритма «Выявление и устранение причин занижения температуры и/или изменения циркуляционных расходов воды в системах отопления»" style="text-align: center"/>
+                  <table>
+                     <tr>
+                        <th>
+                           <h:outputText value="Значения для алгоритма 3.2.10 алгоритма «Выявление и устранение причин занижения температуры и/или изменения циркуляционных расходов воды в системах отопления»" style="text-align: center"/>
+                        </th>
+                     </tr>
+                  </table>
                </f:facet>
 
                <p:column style="width: 6.7%; text-align: center">
@@ -398,20 +514,30 @@
                <p:column style="width: 11.75%; text-align: center">
                   <h:outputText style="display: block;" escape="false" value="#{constData6.shortName}" />
                </p:column>
-               <p:column style="width: 11.7%; text-align: center">
+               <p:column style="width: 7.7%; text-align: center">
                   <h:outputText style="display: block;" escape="false" value="#{constData6.measure}" />
                </p:column>
-               <p:column style="width: 11.8%; text-align: center">
+               <p:column style="width: 7.8%; text-align: center">
                   <p:cellEditor disabled="#{!effCalcConst.write}">
                      <f:facet name="output">
-                        <h:outputText style="display: block;" escape="false" value="#{constData6.value}" />
+                        <p:outputPanel id="constTable6Panel">
+                           <h:outputText style="display: block;" escape="false" value="#{constData6.value}" />
+
+                           <p:contextMenu id="constTable6Context" for="constTable6Panel">
+                              <p:menuitem value="Посмотреть историю"
+                                          action="#{effCalcConst.loadHistData(constData6.name,constData6.id)}"
+                                          oncomplete="PF('historyDialog').show()"
+                                          update="historyDialogID" process="@this" />
+
+                           </p:contextMenu>
+                        </p:outputPanel>
                      </f:facet>
                      <f:facet name="input">
                         <p:inputNumber value="#{constData6.value}" decimalPlaces="3"/>
                      </f:facet>
                   </p:cellEditor>
                </p:column>
-               <p:column style="width: 11.7%">
+               <p:column style="width: 16.7%">
                   <h:outputText style="display: block;" escape="false" value="#{constData6.edit}" />
                </p:column>
                <p:column  style="text-align: center; width: 113px" rendered="#{effCalcConst.write}">
@@ -426,6 +552,37 @@
    <p:dialog id="statusDialog" modal="true" widgetVar="statusDialog" draggable="false" closable="false"
              resizable="false" style="box-shadow: none;" position="center center" onShow="PF('statusDialog').initPosition();">
       <i class="pi pi-spinner pi-spin" style="font-size: 5rem;" />
+   </p:dialog>
+
+   <p:dialog id="historyDialogID" widgetVar="historyDialog" modal="true"
+             resizable="false" width="600" height="auto">
+      <h:outputText value="История изменений параметра: " style="text-align: left; font-weight: 700; font-size: 1.25rem;"/>
+      <h:outputText value="#{effCalcConst.name}" style="text-align: left; font-weight: 700; font-size: 1.25rem;"/>
+
+      <div style="height: 410px; margin: 2px;">
+         <p:dataTable var="historyData" value="#{effCalcConst.tableData}" style="height: 100%"
+                      scrollable="true" scrollHeight="100%" id="historyDataTable" >
+
+            <p:column headerText="Дата и время" width="150" styleClass="centre-column" style="text-align: center">
+               <h:outputText value="#{historyData.date}"/>
+            </p:column>
+
+            <p:column headerText="Обновленное значение" width="100" styleClass="centre-column" style="text-align: center">
+               <h:outputText value="#{historyData.newValue}"/>
+            </p:column>
+
+            <p:column headerText="Имя пользователя" width="100" styleClass="centre-column" style="text-align: center">
+               <h:outputText value="#{historyData.userName}" />
+            </p:column>
+
+         </p:dataTable>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; height: max-content; align-content: flex-end; margin-top: 20px;">
+         <p:button onclick="window.open('loadReport?id=#{effCalcConst.id}&amp;'); return false"
+                   icon="pi pi-download" target="_blank" title="Загрузить отчет"/>
+      </div>
+
    </p:dialog>
 
 </h:body>

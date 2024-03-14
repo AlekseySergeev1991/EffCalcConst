@@ -3,16 +3,16 @@ package ru.tecon.effCalcConst.cdi;
 import org.primefaces.PrimeFaces;
 import org.primefaces.event.RowEditEvent;
 import ru.tecon.effCalcConst.SystemParamException;
+import ru.tecon.effCalcConst.TeconMessage;
 import ru.tecon.effCalcConst.ejb.CheckUserSB;
 import ru.tecon.effCalcConst.ejb.EffCalcConstSB;
 import ru.tecon.effCalcConst.model.Const;
+import ru.tecon.effCalcConst.model.ParamHistory;
 
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
-import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.view.ViewScoped;
-import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -28,15 +28,17 @@ import java.util.logging.Logger;
 @ViewScoped
 public class EffCalcConstMB implements Serializable {
 
-    List<Const> tariff = new ArrayList<>();
-    List<Const> wage = new ArrayList<>();
-    List<Const> alg3_2_1 = new ArrayList<>();
-    List<Const> alg3_2_2 = new ArrayList<>();
-    List<Const> alg3_2_8 = new ArrayList<>();
-    List<Const> alg3_2_10 = new ArrayList<>();
+    private List<Const> tariff = new ArrayList<>();
+    private List<Const> wage = new ArrayList<>();
+    private List<Const> alg3_2_1 = new ArrayList<>();
+    private List<Const> alg3_2_2 = new ArrayList<>();
+    private List<Const> alg3_2_8 = new ArrayList<>();
+    private List<Const> alg3_2_10 = new ArrayList<>();
 
-    Const selectedConst;
-
+    private Const selectedConst;
+    private List<ParamHistory> tableData;
+    private String name;
+    private int id;
     private boolean write;
     private String ip;
     private String login;
@@ -49,12 +51,8 @@ public class EffCalcConstMB implements Serializable {
     @EJB
     private EffCalcConstSB bean;
 
-//    @Inject
-//    private transient Logger logger;
-
     @PostConstruct
     private void init() {
-
         Map<String, String> request = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
 
         String sessionId = request.get("sessionId");
@@ -71,7 +69,13 @@ public class EffCalcConstMB implements Serializable {
      * Метод для загрузки данных
      */
     private void loadData() {
-        List <Const> constList = new ArrayList<>();
+        tariff.clear();
+        wage.clear();
+        alg3_2_1.clear();
+        alg3_2_2.clear();
+        alg3_2_8.clear();
+        alg3_2_10.clear();
+        List <Const> constList;
         constList = bean.getConst();
 
         for (Const temp : constList) {
@@ -108,16 +112,24 @@ public class EffCalcConstMB implements Serializable {
 
         try {
             bean.updConst(ip, login, String.valueOf(event.getObject().getId()), String.valueOf(event.getObject().getValue()));
-            loadData();
 
         } catch (SystemParamException e) {
-            FacesContext.getCurrentInstance()
-                    .addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Ошибка обновления", e.getMessage()));
+            new TeconMessage(TeconMessage.SEVERITY_ERROR, "Ошибка сохранения", e.getMessage()).send();
+            PrimeFaces.current().ajax().update("growl");
+
         }
-//        PrimeFaces.current().ajax().update("effCalcConstForm");
+        loadData();
     }
 
 
+    /**
+     * Метод для загрузки истории изменения параметра
+     */
+    public void loadHistData(String parName, int constId) {
+        id = constId;
+        name = parName;
+        tableData = bean.getParamHistory(constId);
+    }
 
     public boolean isWrite() {
         return write;
@@ -181,5 +193,29 @@ public class EffCalcConstMB implements Serializable {
 
     public void setAlg3_2_10(List<Const> alg3_2_10) {
         this.alg3_2_10 = alg3_2_10;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public List<ParamHistory> getTableData() {
+        return tableData;
+    }
+
+    public void setTableData(List<ParamHistory> tableData) {
+        this.tableData = tableData;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 }
