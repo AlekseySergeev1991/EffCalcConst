@@ -13,6 +13,7 @@ public class Const implements Serializable {
     private String edit;
     private String constGroupName;
     private int constGroupId;
+    private boolean bool;
 
     public Const(int num, int id, String name, String shortName, String measure, String value, String edit, String constGroupName, int constGroupId) {
         this.num = num;
@@ -96,6 +97,14 @@ public class Const implements Serializable {
 
     public void setConstGroupId(int constGroupId) {
         this.constGroupId = constGroupId;
+    }
+
+    public boolean isBool() {
+        return bool;
+    }
+
+    public void setBool(boolean bool) {
+        this.bool = bool;
     }
 
     @Override

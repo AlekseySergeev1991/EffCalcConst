@@ -186,7 +186,7 @@
                         </p:outputPanel>
                      </f:facet>
                      <f:facet name="input">
-                        <p:inputNumber value="#{constData1.value}" decimalPlaces="3"/>
+                        <p:inputNumber value="#{constData1.value}" decimalPlaces="2"/>
                      </f:facet>
                   </p:cellEditor>
                </p:column>
@@ -249,7 +249,7 @@
                         </p:outputPanel>
                      </f:facet>
                      <f:facet name="input">
-                        <p:inputNumber value="#{constData2.value}" decimalPlaces="3"/>
+                        <p:inputNumber value="#{constData2.value}" decimalPlaces="2"/>
                      </f:facet>
                   </p:cellEditor>
                </p:column>
@@ -296,7 +296,7 @@
                <p:column style="width: 7.7%; text-align: center">
                   <h:outputText style="display: block;" escape="false" value="#{constData3.measure}" />
                </p:column>
-               <p:column style="width: 7.8%; text-align: center">
+               <p:column style="width: 7.8%; text-align: center" rendered="#{constData3.bool}">
                   <p:cellEditor disabled="#{!effCalcConst.write}">
                      <f:facet name="output">
                         <p:outputPanel id="constTable3Panel">
@@ -312,6 +312,25 @@
                      </f:facet>
                      <f:facet name="input">
                         <p:inputNumber value="#{constData3.value}" decimalPlaces="3"/>
+                     </f:facet>
+                  </p:cellEditor>
+               </p:column>
+               <p:column style="width: 7.8%; text-align: center" rendered="#{!constData3.bool}">
+                  <p:cellEditor disabled="#{!effCalcConst.write}">
+                     <f:facet name="output">
+                        <p:outputPanel id="constTable3DopPanel">
+                           <h:outputText style="display: block;" escape="false" value="#{constData3.value}" />
+
+                           <p:contextMenu id="constTable3DopContext" for="constTable3DopPanel">
+                              <p:menuitem value="Посмотреть историю"
+                                          action="#{effCalcConst.loadHistData(constData3.name,constData3.id)}"
+                                          oncomplete="PF('historyDialog').show()"
+                                          update="historyDialogID" process="@this" />
+                           </p:contextMenu>
+                        </p:outputPanel>
+                     </f:facet>
+                     <f:facet name="input">
+                        <p:inputNumber value="#{constData3.value}" decimalPlaces="0"/>
                      </f:facet>
                   </p:cellEditor>
                </p:column>
@@ -392,7 +411,7 @@
                <p:column style="width: 7.7%; text-align: center">
                   <h:outputText style="display: block;" escape="false" value="#{constData4.measure}" />
                </p:column>
-               <p:column style="width: 7.8%; text-align: center">
+               <p:column style="width: 7.8%; text-align: center"  rendered="#{constData4.bool}">
                   <p:cellEditor disabled="#{!effCalcConst.write}">
                      <f:facet name="output">
                         <p:outputPanel id="constTable4Panel">
@@ -407,12 +426,36 @@
                         </p:outputPanel>
                      </f:facet>
                      <f:facet name="input">
-                        <p:inputNumber value="#{constData4.value}" decimalPlaces="3"/>
+                        <p:inputNumber value="#{constData4.value}" decimalPlaces="0"/>
+                     </f:facet>
+                  </p:cellEditor>
+               </p:column>
+               <p:column style="width: 7.8%; text-align: center"  rendered="#{!constData4.bool}">
+                  <p:cellEditor disabled="#{!effCalcConst.write}">
+                     <f:facet name="output">
+                        <p:outputPanel id="constTable4DopPanel">
+                           <h:outputText style="display: block;" escape="false" value="#{constData4.value}" />
+
+                           <p:contextMenu id="constTable4DopContext" for="constTable4DopPanel">
+                              <p:menuitem value="Посмотреть историю"
+                                          action="#{effCalcConst.loadHistData(constData4.name,constData4.id)}"
+                                          oncomplete="PF('historyDialog').show()"
+                                          update="historyDialogID" process="@this" />
+                           </p:contextMenu>
+                        </p:outputPanel>
+                     </f:facet>
+                     <f:facet name="input">
+                        <h:selectOneMenu value="#{constData4.value}" style="width:100%; height: 2rem; text-align: center; font-size: 1rem;
+                                 color: #495057; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto , 'Helvetica Neue',  Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'">
+                           <f:selectItem itemValue="5" itemLabel="5"/>
+                           <f:selectItem itemValue="15" itemLabel="15"/>
+
+                        </h:selectOneMenu>
                      </f:facet>
                   </p:cellEditor>
                </p:column>
                <p:column style="width: 16.7%">
-                  <h:outputText style="display: block;" escape="false" value="#{constData4.edit}" />
+                  <h:outputText style="display: block;" escape="false" value="#{constData4.edit}"/>
                </p:column>
                <p:column  style="text-align: center; width: 113px" rendered="#{effCalcConst.write}">
                   <p:rowEditor editTitle="Изменить строку" cancelTitle="Отменить изменения" saveTitle="Сохранить строку" />
@@ -454,7 +497,7 @@
                <p:column style="width: 7.7%; text-align: center">
                   <h:outputText style="display: block;" escape="false" value="#{constData5.measure}" />
                </p:column>
-               <p:column style="width: 7.8%; text-align: center">
+               <p:column style="width: 7.8%; text-align: center" rendered="#{!constData5.bool}">
                   <p:cellEditor disabled="#{!effCalcConst.write}">
                      <f:facet name="output">
                         <p:outputPanel id="constTable5Panel">
@@ -471,6 +514,32 @@
                      </f:facet>
                      <f:facet name="input">
                         <p:inputNumber value="#{constData5.value}" decimalPlaces="3"/>
+                     </f:facet>
+                  </p:cellEditor>
+               </p:column>
+               <p:column style="width: 7.8%; text-align: center" rendered="#{constData5.bool}">
+                  <p:cellEditor disabled="#{!effCalcConst.write}">
+                     <f:facet name="output">
+                        <p:outputPanel id="constTable5DopPanel">
+                           <h:outputText style="display: block;" escape="false" value="#{constData5.value}" />
+
+                           <p:contextMenu id="constTable5DopContext" for="constTable5DopPanel">
+                              <p:menuitem value="Посмотреть историю"
+                                          action="#{effCalcConst.loadHistData(constData5.name,constData5.id)}"
+                                          oncomplete="PF('historyDialog').show()"
+                                          update="historyDialogID" process="@this" />
+
+                           </p:contextMenu>
+                        </p:outputPanel>
+                     </f:facet>
+                     <f:facet name="input">
+                        <h:selectOneMenu value="#{constData5.value}" style="width:100%; height: 2rem; text-align: center; font-size: 1rem;
+                                 color: #495057; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto , 'Helvetica Neue',  Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'">
+                           <f:selectItem itemValue="28" itemLabel="28"/>
+                           <f:selectItem itemValue="29" itemLabel="29"/>
+                           <f:selectItem itemValue="30" itemLabel="30"/>
+                           <f:selectItem itemValue="31" itemLabel="31"/>
+                        </h:selectOneMenu>
                      </f:facet>
                   </p:cellEditor>
                </p:column>
@@ -533,7 +602,7 @@
                         </p:outputPanel>
                      </f:facet>
                      <f:facet name="input">
-                        <p:inputNumber value="#{constData6.value}" decimalPlaces="3"/>
+                        <p:inputNumber value="#{constData6.value}" decimalPlaces="0"/>
                      </f:facet>
                   </p:cellEditor>
                </p:column>

@@ -63,7 +63,7 @@ public class EffCalcConstSB {
             }
 
         } catch (SQLException e) {
-            logger.log(Level.WARNING, "error load analog data");
+            logger.log(Level.WARNING, "error load const data");
         }
         return result;
     }
@@ -84,7 +84,7 @@ public class EffCalcConstSB {
             stm.setString(4, new_value);
             stm.executeUpdate();
         } catch (SQLException e) {
-            logger.log(Level.WARNING, "saving error Enum Param", e);
+            logger.log(Level.WARNING, "saving error Const", e);
             if (e.getSQLState().equals("11111")) {
                 if (e instanceof PSQLException) {
                     PSQLException exception = (PSQLException)e;

@@ -87,12 +87,27 @@ public class EffCalcConstMB implements Serializable {
                     wage.add(temp);
                     break;
                 case (3):
+                    if (temp.getId() == 7 || temp.getId() == 8) {
+                        temp.setBool(true);
+                    } else {
+                        temp.setBool(false);
+                    }
                     alg3_2_1.add(temp);
                     break;
                 case (4):
+                    if (temp.getId() == 11) {
+                        temp.setBool(true);
+                    } else {
+                        temp.setBool(false);
+                    }
                     alg3_2_2.add(temp);
                     break;
                 case (5):
+                    if (temp.getId() == 14 || temp.getId() == 15 || temp.getId() == 16) {
+                        temp.setBool(true);
+                    } else {
+                        temp.setBool(false);
+                    }
                     alg3_2_8.add(temp);
                     break;
                 case (6):
