@@ -2,12 +2,16 @@ package ru.tecon.effCalcConst.cdi;
 
 import org.primefaces.PrimeFaces;
 import org.primefaces.event.RowEditEvent;
+import org.primefaces.model.DefaultTreeNode;
+import org.primefaces.model.TreeNode;
 import ru.tecon.effCalcConst.SystemParamException;
 import ru.tecon.effCalcConst.TeconMessage;
 import ru.tecon.effCalcConst.ejb.CheckUserSB;
 import ru.tecon.effCalcConst.ejb.EffCalcConstSB;
 import ru.tecon.effCalcConst.model.Const;
+import ru.tecon.effCalcConst.model.ObjProp;
 import ru.tecon.effCalcConst.model.ParamHistory;
+import ru.tecon.effCalcConst.model.StructTree;
 
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
@@ -15,9 +19,8 @@ import javax.faces.context.FacesContext;
 import javax.faces.view.ViewScoped;
 import javax.inject.Named;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -35,13 +38,23 @@ public class EffCalcConstMB implements Serializable {
     private List<Const> alg3_2_8 = new ArrayList<>();
     private List<Const> alg3_2_10 = new ArrayList<>();
 
-    private Const selectedConst;
     private List<ParamHistory> tableData;
     private String name;
     private int id;
     private boolean write;
     private String ip;
     private String login;
+
+    private TreeNode<StructTree> root;
+    private DefaultTreeNode<StructTree> selectedStructNode;
+    private List<StructTree> structTreeList = new ArrayList<>();
+    private List<ObjProp> propList;
+    private ObjProp selectedProp = new ObjProp();
+
+    private String prevFilterWord = "";
+    private String filterWord = "";
+    private String address;
+    private String redirect;
     private static final Logger logger = Logger.getLogger(EffCalcConstMB.class.getName());
 
 
@@ -62,7 +75,11 @@ public class EffCalcConstMB implements Serializable {
         ip = bean.getIP(sessionId);
         write = checkUserSB.checkSessionWrite(sessionId, formId);
 
+        root = new DefaultTreeNode<>(new StructTree(), null);
+        loadStructTree(login, selectedProp.getPropId(), filterWord);
+        loadProperty();
         loadData();
+
     }
 
     /**
@@ -76,7 +93,7 @@ public class EffCalcConstMB implements Serializable {
         alg3_2_8.clear();
         alg3_2_10.clear();
         List <Const> constList;
-        constList = bean.getConst();
+        constList = bean.getConst(selectedStructNode.getData().getMyId());
 
         for (Const temp : constList) {
             switch (temp.getConstGroupId()) {
@@ -124,16 +141,29 @@ public class EffCalcConstMB implements Serializable {
      */
     public void onRowEdit(RowEditEvent<Const> event) {
         logger.info("update row " + event.getObject());
-
+        if (selectedStructNode == null) {
+            selectedStructNode = new DefaultTreeNode<>(structTreeList.get(0), null);
+        }
         try {
-            bean.updConst(ip, login, String.valueOf(event.getObject().getId()), String.valueOf(event.getObject().getValue()));
-
+            bean.updConst(ip, login, String.valueOf(event.getObject().getId()),
+                    String.valueOf(event.getObject().getValue()), selectedStructNode.getData().getMyId());
+            if (selectedStructNode.getData().getMyType().equals("S144") || selectedStructNode.getData().getMyType().equals("S145")) {
+                redirect = "loadReport?id=" + selectedProp.getPropId() + "&objId=545" + "&amp;";
+            } else {
+                redirect = "loadReport?id=" + selectedProp.getPropId() + "&objId=" + selectedStructNode.getData().getMyId() + "&amp;";
+            }
         } catch (SystemParamException e) {
             new TeconMessage(TeconMessage.SEVERITY_ERROR, "Ошибка сохранения", e.getMessage()).send();
             PrimeFaces.current().ajax().update("growl");
 
         }
         loadData();
+        PrimeFaces.current().ajax().update("effCalcConstForm:constTable1");
+        PrimeFaces.current().ajax().update("effCalcConstForm:constTable2");
+        PrimeFaces.current().ajax().update("effCalcConstForm:constTable3");
+        PrimeFaces.current().ajax().update("effCalcConstForm:constTable4");
+        PrimeFaces.current().ajax().update("effCalcConstForm:constTable5");
+        PrimeFaces.current().ajax().update("effCalcConstForm:constTable6");
     }
 
 
@@ -143,7 +173,103 @@ public class EffCalcConstMB implements Serializable {
     public void loadHistData(String parName, int constId) {
         id = constId;
         name = parName;
-        tableData = bean.getParamHistory(constId);
+
+        if (selectedStructNode == null) {
+            selectedStructNode = new DefaultTreeNode<>(structTreeList.get(0), null);
+        }
+
+        tableData = bean.getParamHistory(constId, selectedStructNode.getData().getMyId());
+
+        if (selectedStructNode.getData().getMyType().equals("S144") || selectedStructNode.getData().getMyType().equals("S145")) {
+            redirect = "loadReport?id=" + id + "&objId=545" + "&amp;";
+        } else {
+            redirect = "loadReport?id=" + id + "&objId=" + selectedStructNode.getData().getMyId() + "&amp;";
+        }
+    }
+
+    /**
+     * Метод для загрузки дерева объектов
+     */
+    private void loadStructTree(String user, int propId, String filterWord) {
+        if (!structTreeList.isEmpty()) {
+            structTreeList.clear();
+            root.getChildren().clear();
+        }
+
+        structTreeList = bean.getTreeParam(user, propId, filterWord);
+        Map<String, TreeNode<StructTree>> nodes = new HashMap<>();
+        nodes.put(null, root);
+
+        if (!structTreeList.isEmpty()) {
+            for (StructTree structNode : structTreeList) {
+                if (structNode.getParent().equals("S")) {
+                    structNode.setParent(null);
+                    TreeNode<StructTree> parent = nodes.get(structNode.getParent());
+                    DefaultTreeNode<StructTree> treeNode = new DefaultTreeNode<>(structNode, parent);
+                    treeNode.setExpanded(true);
+                    nodes.put(structNode.getId(), treeNode);
+                } else {
+                    TreeNode<StructTree> parent = nodes.get(structNode.getParent());
+                    DefaultTreeNode<StructTree> treeNode = new DefaultTreeNode<>(structNode, parent);
+                    if (!Objects.equals(filterWord, "")) {
+                        treeNode.setExpanded(true);
+                    }
+                    nodes.put(structNode.getId(), treeNode);
+                }
+            }
+
+            if (selectedStructNode == null) {
+                selectedStructNode = new DefaultTreeNode<>(structTreeList.get(0), null);
+            }
+
+            if (selectedStructNode.getData().getMyType().equals("S144") || selectedStructNode.getData().getMyType().equals("S145")) {
+                redirect = "loadReport?id=" + selectedProp.getPropId() + "&objId=545" + "&amp;";
+            } else {
+                redirect = "loadReport?id=" + selectedProp.getPropId() + "&objId=" + selectedStructNode.getData().getMyId() + "&amp;";
+            }
+        }
+    }
+
+    /**
+     * Метод логирует выбор свойства объекта
+     */
+    public void selectProp() {
+        logger.log(Level.INFO, "selected property for filter - " + selectedProp.getPropName());
+    }
+
+    /**
+     * Метод для выбора объекта в дереве и обновления таблиц в зависимости от этого выбора
+     */
+    public void selectNode() {
+        loadData();
+        PrimeFaces.current().ajax().update("effCalcConstForm:constTable1");
+        PrimeFaces.current().ajax().update("effCalcConstForm:constTable2");
+        PrimeFaces.current().ajax().update("effCalcConstForm:constTable3");
+        PrimeFaces.current().ajax().update("effCalcConstForm:constTable4");
+        PrimeFaces.current().ajax().update("effCalcConstForm:constTable5");
+        PrimeFaces.current().ajax().update("effCalcConstForm:constTable6");
+        PrimeFaces.current().ajax().update("effCalcConstForm:toolbar");
+
+        if (selectedStructNode.getData().getMyType().equals("S144") || selectedStructNode.getData().getMyType().equals("S145")) {
+            redirect = "loadReport?id=" + selectedProp.getPropId() + "&objId=545" + "&amp;";
+        } else {
+            redirect = "loadReport?id=" + selectedProp.getPropId() + "&objId=" + selectedStructNode.getData().getMyId() + "&amp;";
+        }        PrimeFaces.current().ajax().update("effCalcConstForm");
+    }
+
+    /**
+     * Метод для фильтрации дерева объектов
+     */
+    public void filtering() {
+        if (!prevFilterWord.equals(filterWord)) {
+            loadStructTree(login, selectedProp.getPropId(), filterWord);
+            PrimeFaces.current().ajax().update("effCalcConstForm:treeTableId");
+            prevFilterWord = filterWord;
+        }
+    }
+
+    private void loadProperty() {
+        propList = bean.getProp();
     }
 
     public boolean isWrite() {
@@ -152,14 +278,6 @@ public class EffCalcConstMB implements Serializable {
 
     public void setWrite(boolean write) {
         this.write = write;
-    }
-
-    public Const getSelectedConst() {
-        return selectedConst;
-    }
-
-    public void setSelectedConst(Const selectedConst) {
-        this.selectedConst = selectedConst;
     }
 
     public List<Const> getTariff() {
@@ -232,5 +350,69 @@ public class EffCalcConstMB implements Serializable {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public TreeNode<StructTree> getRoot() {
+        return root;
+    }
+
+    public void setRoot(TreeNode<StructTree> root) {
+        this.root = root;
+    }
+
+    public DefaultTreeNode<StructTree> getSelectedStructNode() {
+        return selectedStructNode;
+    }
+
+    public void setSelectedStructNode(DefaultTreeNode<StructTree> selectedStructNode) {
+        this.selectedStructNode = selectedStructNode;
+    }
+
+    public List<StructTree> getStructTreeList() {
+        return structTreeList;
+    }
+
+    public void setStructTreeList(List<StructTree> structTreeList) {
+        this.structTreeList = structTreeList;
+    }
+
+    public List<ObjProp> getPropList() {
+        return propList;
+    }
+
+    public void setPropList(List<ObjProp> propList) {
+        this.propList = propList;
+    }
+
+    public ObjProp getSelectedProp() {
+        return selectedProp;
+    }
+
+    public void setSelectedProp(ObjProp selectedProp) {
+        this.selectedProp = selectedProp;
+    }
+
+    public String getFilterWord() {
+        return filterWord;
+    }
+
+    public void setFilterWord(String filterWord) {
+        this.filterWord = filterWord;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getRedirect() {
+        return redirect;
+    }
+
+    public void setRedirect(String redirect) {
+        this.redirect = redirect;
     }
 }

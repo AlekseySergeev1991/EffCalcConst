@@ -20,6 +20,7 @@ public class LoadReportServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         int id = Integer.parseInt(req.getParameter("id"));
+        int obj_id = Integer.parseInt(req.getParameter("objId"));
 
         resp.setContentType("application/vnd.ms-excel; charset=UTF-8");
         resp.setHeader("Content-Disposition", "attachment; filename=\"" +
@@ -30,7 +31,7 @@ public class LoadReportServlet extends HttpServlet {
         resp.setCharacterEncoding("UTF-8");
 
         try (OutputStream output = resp.getOutputStream()) {
-            ChangesReport.createReport(id, bean).write(output);
+            ChangesReport.createReport(id, obj_id, bean).write(output);
             output.flush();
         } catch (IOException e) {
             e.printStackTrace();

@@ -3,7 +3,9 @@ package ru.tecon.effCalcConst.ejb;
 import org.postgresql.util.PSQLException;
 import ru.tecon.effCalcConst.SystemParamException;
 import ru.tecon.effCalcConst.model.Const;
+import ru.tecon.effCalcConst.model.ObjProp;
 import ru.tecon.effCalcConst.model.ParamHistory;
+import ru.tecon.effCalcConst.model.StructTree;
 
 import javax.annotation.Resource;
 import javax.ejb.LocalBean;
@@ -26,16 +28,15 @@ public class EffCalcConstSB {
 
     private static final Logger logger = Logger.getLogger(EffCalcConstSB.class.getName());
 
-    private static final String GET_CONS_DATA = "select id_const, name_const, short_name_const, short_name as measure,\n" +
-            "       value, last_edit_by , name_group as const_group_name,\n" +
-            "       id as const_group_id\n" +
-            "from eff_calc.eff_constant\n" +
-            "         left join admin.sys_measure on measure = measure_id\n" +
-            "         left join eff_calc.sp_const_group scg  on const_group = id\n" +
-            "order by  const_group_id, id_const";
-    private static final String UPDATE_CONST = "call eff_calc_001.update_constant_p (?,?,?,?)";
+    private static final String GET_CONS_DATA = "select * from eff_calc_001.const_view(?)";
+    private static final String UPDATE_CONST = "call eff_calc_001.update_constant_p (?,?,?,?,?)";
     private static final String GET_IP = "select eff_calc_001.get_active_session_ip(?)";
-    private static final String HISTORY = "SELECT * FROM eff_calc_001.const_history_f(?)";
+    private static final String HISTORY = "SELECT * FROM eff_calc_001.const_history_f(?,?)";
+    private static final String SELECT_STRUCT_TREE = "select * from eff_calc.filter_view(?,?,?)";
+
+    private static final String SELECT_OBJ_TYPE_PROP = "select * from dsp_0032t.get_obj_type_props(1)";
+    private static final String GET_OBJ_NAME = "select * from eff_calc.get_name_from_id(?)";
+
 
 
     @Resource(name = "jdbc/DataSourceR")
@@ -47,17 +48,19 @@ public class EffCalcConstSB {
     /**
      * Получение данных для формы Справочник нормативных значений для расчета эффекта от применения алгоритмов
      */
-    public List<Const> getConst () {
+    public List<Const> getConst (int id) {
         List<Const> result = new ArrayList<>();
         try (Connection connect = dsR.getConnection();
              PreparedStatement stm = connect.prepareStatement(GET_CONS_DATA)) {
+            stm.setInt(1, id);
             ResultSet res = stm.executeQuery();
             int i = 1;
             while (res.next()) {
-                Const temp = new Const(i, res.getInt("id_const"), res.getString("name_const"),
+                Const temp = new Const(i, res.getInt("const_id"), res.getString("name_const"),
                         res.getString("short_name_const"), res.getString("measure"),
                         res.getString("value"), res.getString("last_edit_by"),
-                        res.getString("const_group_name"), res.getInt("const_group_id"));
+                        res.getString("const_group_name"), res.getInt("const_group_id"),
+                        res.getString("private"));
                 result.add(temp);
                 i++;
             }
@@ -75,13 +78,14 @@ public class EffCalcConstSB {
      * @param const_id - id константы
      * @param new_value - значение
      */
-    public void updConst (String ip_addr, String user_id, String const_id, String new_value) throws SystemParamException {
+    public void updConst (String ip_addr, String user_id, String const_id, String new_value, int obj_id) throws SystemParamException {
         try (Connection connect = dsRW.getConnection();
              PreparedStatement stm = connect.prepareStatement(UPDATE_CONST)) {
             stm.setString(1, ip_addr);
             stm.setString(2, user_id);
             stm.setString(3, const_id);
             stm.setString(4, new_value);
+            stm.setInt(5, obj_id);
             stm.executeUpdate();
         } catch (SQLException e) {
             logger.log(Level.WARNING, "saving error Const", e);
@@ -120,11 +124,12 @@ public class EffCalcConstSB {
      * @param constId - id показателя
      * @return ip в строковом представлении
      */
-    public List<ParamHistory> getParamHistory(int constId) {
+    public List<ParamHistory> getParamHistory(int constId, int obj_id) {
         List<ParamHistory> result = new ArrayList<>();
         try (Connection connect = dsR.getConnection();
              PreparedStatement stm = connect.prepareStatement(HISTORY)) {
-            stm.setInt(1, constId);
+            stm.setString(1, String.valueOf(constId));
+            stm.setString(2, String.valueOf(obj_id));
 
             ResultSet res = stm.executeQuery();
             while (res.next()) {
@@ -139,6 +144,81 @@ public class EffCalcConstSB {
 
         } catch (SQLException e) {
             logger.log(Level.WARNING, "error getting param history");
+        }
+        return result;
+    }
+
+    /**
+     * @return дерево для формы
+     */
+    public List<StructTree> getTreeParam(String user, int filterId, String filter) {
+        List<StructTree> result = new ArrayList<>();
+        try (Connection connect = dsR.getConnection();
+             PreparedStatement stm = connect.prepareStatement(SELECT_STRUCT_TREE)) {
+            stm.setString(1, user);
+            stm.setInt(2, filterId);
+            stm.setString(3, filter);
+            ResultSet res = stm.executeQuery();
+
+            while (res.next()) {
+
+                StructTree structTree = new StructTree(res.getString("id"),
+                        res.getString("name"),
+                        res.getString("parent"),
+                        res.getInt("my_id"),
+                        res.getString("my_type"),
+                        res.getString("my_icon"));
+
+                if (structTree.getMyIcon().equals("L")) {
+                    structTree.setMyIcon("fa fa-link");
+                } else {
+                    structTree.setMyIcon("fa fa-cubes");
+                }
+
+                result.add(structTree);
+            }
+        } catch (SQLException e) {
+            logger.log(Level.WARNING, "SQLException", e);
+        }
+        return result;
+    }
+
+    /**
+     * @return список свойств объета
+     */
+    public List<ObjProp> getProp() {
+        List<ObjProp> result = new ArrayList<>();
+        try (Connection connect = dsR.getConnection();
+             PreparedStatement stm = connect.prepareStatement(SELECT_OBJ_TYPE_PROP)) {
+            ResultSet res = stm.executeQuery();
+            while (res.next()) {
+
+                ObjProp objProp = new ObjProp(res.getInt("obj_prop_id"),
+                        res.getString("obj_prop_name"));
+
+
+                result.add(objProp);
+            }
+        } catch (SQLException e) {
+            logger.log(Level.WARNING, "SQLException", e);
+        }
+        return result;
+    }
+
+    /**
+     * @return имя объекта
+     */
+    public String getObjName(int id) {
+        String result = "";
+        try (Connection connect = dsR.getConnection();
+             PreparedStatement stm = connect.prepareStatement(GET_OBJ_NAME)) {
+            stm.setInt(1, id);
+            ResultSet res = stm.executeQuery();
+            if (res.next()) {
+                result = res.getString("name");
+            }
+        } catch (SQLException e) {
+            logger.log(Level.WARNING, "SQLException", e);
         }
         return result;
     }

@@ -14,8 +14,9 @@ public class Const implements Serializable {
     private String constGroupName;
     private int constGroupId;
     private boolean bool;
+    private String isGlobal;
 
-    public Const(int num, int id, String name, String shortName, String measure, String value, String edit, String constGroupName, int constGroupId) {
+    public Const(int num, int id, String name, String shortName, String measure, String value, String edit, String constGroupName, int constGroupId, String isGlobal) {
         this.num = num;
         this.id = id;
         this.name = name;
@@ -25,6 +26,7 @@ public class Const implements Serializable {
         this.edit = edit;
         this.constGroupName = constGroupName;
         this.constGroupId = constGroupId;
+        this.isGlobal = isGlobal;
     }
 
     public int getNum() {
@@ -107,6 +109,14 @@ public class Const implements Serializable {
         this.bool = bool;
     }
 
+    public String getIsGlobal() {
+        return isGlobal;
+    }
+
+    public void setIsGlobal(String isGlobal) {
+        this.isGlobal = isGlobal;
+    }
+
     @Override
     public String toString() {
         return new StringJoiner(", ", Const.class.getSimpleName() + "[", "]")
@@ -119,6 +129,8 @@ public class Const implements Serializable {
                 .add("edit='" + edit + "'")
                 .add("constGroupName='" + constGroupName + "'")
                 .add("constGroupId=" + constGroupId)
+                .add("bool=" + bool)
+                .add("isGlobal='" + isGlobal + "'")
                 .toString();
     }
 }

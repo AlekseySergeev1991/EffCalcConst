@@ -15,8 +15,8 @@ import java.util.List;
 
 public class ChangesReport {
 
-    public static SXSSFWorkbook createReport(int id, EffCalcConstSB bean) {
-        List<ParamHistory> tableData = bean.getParamHistory(id);
+    public static SXSSFWorkbook createReport(int id, int obj_id, EffCalcConstSB bean) {
+        List<ParamHistory> tableData = bean.getParamHistory(id, obj_id);
         SXSSFWorkbook wb = new SXSSFWorkbook();
         SXSSFSheet sh = wb.createSheet("Отчет");
 
@@ -43,16 +43,27 @@ public class ChangesReport {
         sh.addMergedRegion(formName);
         cell_2_1.setCellStyle(headerStyle);
 
+        SXSSFRow row_3 = sh.createRow(2);
+        row_3.setHeight((short) 435);
+        SXSSFCell cell_3_1 = row_3.createCell(0);
+        cell_3_1.setCellValue("Для " + bean.getObjName(obj_id));
+        CellRangeAddress objName = new CellRangeAddress(2, 2, 0, 7);
+        sh.addMergedRegion(objName);
+        cell_3_1.setCellStyle(headerStyle);
+
         if (!tableData.isEmpty()) {
-            SXSSFRow row_3 = sh.createRow(2);
-            row_3.setHeight((short) 435);
-            SXSSFCell cell_3_1 = row_3.createCell(0);
+            SXSSFRow row_4 = sh.createRow(3);
+            row_4.setHeight((short) 435);
+            SXSSFCell cell_4_1 = row_4.createCell(0);
             if (id != 0) {
                 sh.setColumnWidth(0, 16 * 256);
                 sh.setColumnWidth(1, 16 * 256);
                 sh.setColumnWidth(2, 17 * 256);
-                cell_3_1.setCellValue("История изменений параметра: " + tableData.get(0).getConstName());
-                cell_3_1.setCellStyle(headerNameStyle);
+                cell_4_1.setCellValue("История изменений параметра: " + tableData.get(0).getConstName());
+                cell_4_1.setCellStyle(headerNameStyle);
+                CellRangeAddress repName = new CellRangeAddress(3, 3, 0, 7);
+                sh.addMergedRegion(repName);
+                cell_4_1.setCellStyle(headerStyle);
             } else {
                 sh.setColumnWidth(0, 35 * 256);
                 sh.setColumnWidth(1, 15 * 256);
@@ -60,32 +71,31 @@ public class ChangesReport {
                 sh.setColumnWidth(3, 16 * 256);
                 sh.setColumnWidth(4, 19 * 256);
 
-                cell_3_1.setCellValue("Общая история изменений параметров");
-                CellRangeAddress repName = new CellRangeAddress(2, 2, 0, 7);
+                cell_4_1.setCellValue("Общая история изменений параметров");
+                CellRangeAddress repName = new CellRangeAddress(3, 3, 0, 7);
                 sh.addMergedRegion(repName);
-                cell_3_1.setCellStyle(headerStyle);
+                cell_4_1.setCellStyle(headerStyle);
             }
-
 
             createNow(sh, nowStyle);
 
             if (id !=0) {
-                SXSSFRow row_6 = sh.createRow(5);
-                SXSSFCell cell_6_1 = row_6.createCell(0);
-                cell_6_1.setCellStyle(tableHeaderStyle);
-                cell_6_1.setCellValue("Дата и время");
+                SXSSFRow row_7 = sh.createRow(6);
+                SXSSFCell cell_7_1 = row_7.createCell(0);
+                cell_7_1.setCellStyle(tableHeaderStyle);
+                cell_7_1.setCellValue("Дата и время");
 
-                SXSSFCell cell_6_2 = row_6.createCell(1);
-                cell_6_2.setCellStyle(tableHeaderStyle);
-                cell_6_2.setCellValue("Обновленное значение");
+                SXSSFCell cell_7_2 = row_7.createCell(1);
+                cell_7_2.setCellStyle(tableHeaderStyle);
+                cell_7_2.setCellValue("Обновленное значение");
 
-                SXSSFCell cell_6_3 = row_6.createCell(2);
-                cell_6_3.setCellStyle(tableHeaderStyle);
-                cell_6_3.setCellValue("Имя пользователя");
+                SXSSFCell cell_7_3 = row_7.createCell(2);
+                cell_7_3.setCellStyle(tableHeaderStyle);
+                cell_7_3.setCellValue("Имя пользователя");
 
                 int i = 0;
                 for (ParamHistory paramHistory : tableData) {
-                    SXSSFRow row = sh.createRow(6 + i);
+                    SXSSFRow row = sh.createRow(7 + i);
 
                     SXSSFCell cell_i_1 = row.createCell(0);
                     cell_i_1.setCellStyle(cellNoWrapStyle);
@@ -102,31 +112,31 @@ public class ChangesReport {
                     i++;
                 }
             } else {
-                SXSSFRow row_6 = sh.createRow(5);
+                SXSSFRow row_7 = sh.createRow(6);
 
-                SXSSFCell cell_6_1 = row_6.createCell(0);
-                cell_6_1.setCellStyle(tableHeaderStyle);
-                cell_6_1.setCellValue("Наименование показателя");
+                SXSSFCell cell_7_1 = row_7.createCell(0);
+                cell_7_1.setCellStyle(tableHeaderStyle);
+                cell_7_1.setCellValue("Наименование показателя");
 
-                SXSSFCell cell_6_2 = row_6.createCell(1);
-                cell_6_2.setCellStyle(tableHeaderStyle);
-                cell_6_2.setCellValue("Старое");
+                SXSSFCell cell_7_2 = row_7.createCell(1);
+                cell_7_2.setCellStyle(tableHeaderStyle);
+                cell_7_2.setCellValue("Старое");
 
-                SXSSFCell cell_6_3 = row_6.createCell(2);
-                cell_6_3.setCellStyle(tableHeaderStyle);
-                cell_6_3.setCellValue("Новое");
+                SXSSFCell cell_7_3 = row_7.createCell(2);
+                cell_7_3.setCellStyle(tableHeaderStyle);
+                cell_7_3.setCellValue("Новое");
 
-                SXSSFCell cell_6_4 = row_6.createCell(3);
-                cell_6_4.setCellStyle(tableHeaderStyle);
-                cell_6_4.setCellValue("Дата и время");
+                SXSSFCell cell_7_4 = row_7.createCell(3);
+                cell_7_4.setCellStyle(tableHeaderStyle);
+                cell_7_4.setCellValue("Дата и время");
 
-                SXSSFCell cell_6_5 = row_6.createCell(4);
-                cell_6_5.setCellStyle(tableHeaderStyle);
-                cell_6_5.setCellValue("Имя пользователя");
+                SXSSFCell cell_7_5 = row_7.createCell(4);
+                cell_7_5.setCellStyle(tableHeaderStyle);
+                cell_7_5.setCellValue("Имя пользователя");
 
                 int i = 0;
                 for (ParamHistory paramHistory : tableData) {
-                    SXSSFRow row = sh.createRow(6 + i);
+                    SXSSFRow row = sh.createRow(7 + i);
 
                     SXSSFCell cell_i_1 = row.createCell(0);
                     cell_i_1.setCellStyle(cellWrapStyle);
@@ -152,14 +162,14 @@ public class ChangesReport {
                 }
             }
         } else {
-            SXSSFRow row_3 = sh.createRow(2);
-            row_3.setHeight((short) 435);
-            SXSSFCell cell_3_1 = row_3.createCell(0);
+            SXSSFRow row_4 = sh.createRow(3);
+            row_4.setHeight((short) 435);
+            SXSSFCell cell_4_1 = row_3.createCell(0);
                 sh.setColumnWidth(0, 16 * 256);
                 sh.setColumnWidth(1, 16 * 256);
                 sh.setColumnWidth(2, 17 * 256);
-                cell_3_1.setCellValue("История изменений параметра: Отсутствует");
-                cell_3_1.setCellStyle(headerNameStyle);
+                cell_4_1.setCellValue("История изменений параметра: Отсутствует");
+                cell_4_1.setCellStyle(headerNameStyle);
 
             createNow(sh, nowStyle);
         }
@@ -169,12 +179,12 @@ public class ChangesReport {
 
     private static void createNow(SXSSFSheet sh, CellStyle nowStyle) {
         String now = new SimpleDateFormat("dd.MM.yyyy HH:mm").format(new Date());
-        SXSSFRow row_4 = sh.createRow(3);
-        row_4.setHeight((short) 435);
-        SXSSFCell cell_4_1 = row_4.createCell(0);
-        cell_4_1.setCellStyle(nowStyle);
-        cell_4_1.setCellValue("Отчет сформирован  " + now);
-        CellRangeAddress nowDone = new CellRangeAddress(3, 3, 0, 7);
+        SXSSFRow row_5 = sh.createRow(4);
+        row_5.setHeight((short) 435);
+        SXSSFCell cell_5_1 = row_5.createCell(0);
+        cell_5_1.setCellStyle(nowStyle);
+        cell_5_1.setCellValue("Отчет сформирован  " + now);
+        CellRangeAddress nowDone = new CellRangeAddress(4, 4, 0, 7);
         sh.addMergedRegion(nowDone);
     }
 
