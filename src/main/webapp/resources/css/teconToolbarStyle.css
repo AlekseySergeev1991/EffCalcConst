@@ -126,3 +126,14 @@ body .ui-datatable .ui-datatable-header {
 .constTable.ui-datatable table t {
     display: none;
 }
+
+#reportBtn {
+    background-color: #0065c9 !important;
+    color: rgba(235,237,239,.6) !important;
+    border-color: #0065c9 !important;
+    opacity: 1 !important;
+    border-radius: .25rem !important;
+    box-shadow: 0 1px 5px grey !important;
+}
+
+

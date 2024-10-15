@@ -9,3 +9,7 @@ body .ui-dialog .ui-dialog-titlebar {
     border-bottom: 0 none;
     padding: 5px 10px 0 0;
 }
+
+.customCellStyle {
+    background-color: yellow;
+}

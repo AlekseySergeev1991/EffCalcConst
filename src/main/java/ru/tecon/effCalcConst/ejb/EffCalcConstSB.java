@@ -36,14 +36,14 @@ public class EffCalcConstSB {
 
     private static final String SELECT_OBJ_TYPE_PROP = "select * from dsp_0032t.get_obj_type_props(1)";
     private static final String GET_OBJ_NAME = "select * from eff_calc.get_name_from_id(?)";
+    private static final String GET_STRUCT = "select * from eff_calc.text_struct_no_user(?)";
+    private static final String GET_CONST_NAME = "select * from eff_calc_001.get_name_from_const_id(?)";
 
-
+    @Resource(name = "jdbc/DataSource")
+    private DataSource dsRw;
 
     @Resource(name = "jdbc/DataSourceR")
     private DataSource dsR;
-
-    @Resource(name = "jdbc/DataSource")
-    private DataSource dsRW;
 
     /**
      * Получение данных для формы Справочник нормативных значений для расчета эффекта от применения алгоритмов
@@ -79,7 +79,7 @@ public class EffCalcConstSB {
      * @param new_value - значение
      */
     public void updConst (String ip_addr, String user_id, String const_id, String new_value, int obj_id) throws SystemParamException {
-        try (Connection connect = dsRW.getConnection();
+        try (Connection connect = dsRw.getConnection();
              PreparedStatement stm = connect.prepareStatement(UPDATE_CONST)) {
             stm.setString(1, ip_addr);
             stm.setString(2, user_id);
@@ -161,7 +161,6 @@ public class EffCalcConstSB {
             ResultSet res = stm.executeQuery();
 
             while (res.next()) {
-
                 StructTree structTree = new StructTree(res.getString("id"),
                         res.getString("name"),
                         res.getString("parent"),
@@ -170,11 +169,10 @@ public class EffCalcConstSB {
                         res.getString("my_icon"));
 
                 if (structTree.getMyIcon().equals("L")) {
-                    structTree.setMyIcon("fa fa-link");
+                    structTree.setMyIcon("fa fa-link fa-rotate-90 linkIcon");
                 } else {
-                    structTree.setMyIcon("fa fa-cubes");
+                    structTree.setMyIcon("fa fa-cubes cubesIcon");
                 }
-
                 result.add(structTree);
             }
         } catch (SQLException e) {
@@ -195,8 +193,6 @@ public class EffCalcConstSB {
 
                 ObjProp objProp = new ObjProp(res.getInt("obj_prop_id"),
                         res.getString("obj_prop_name"));
-
-
                 result.add(objProp);
             }
         } catch (SQLException e) {
@@ -212,6 +208,43 @@ public class EffCalcConstSB {
         String result = "";
         try (Connection connect = dsR.getConnection();
              PreparedStatement stm = connect.prepareStatement(GET_OBJ_NAME)) {
+            stm.setInt(1, id);
+            ResultSet res = stm.executeQuery();
+            if (res.next()) {
+                result = res.getString("name");
+            }
+        } catch (SQLException e) {
+            logger.log(Level.WARNING, "SQLException", e);
+        }
+        return result;
+    }
+
+    /**
+     * @return структуру объекта
+     */
+    public String getStruct(int id) {
+        String result = "";
+        try (Connection connect = dsR.getConnection();
+             PreparedStatement stm = connect.prepareStatement(GET_STRUCT)) {
+            stm.setInt(1, id);
+            ResultSet res = stm.executeQuery();
+            if (res.next()) {
+                result = res.getString("text_struct_no_user");
+            }
+        } catch (SQLException e) {
+            logger.log(Level.WARNING, "SQLException", e);
+        }
+        return result;
+    }
+
+    /**
+     * @param id - id константы
+     * @return имя константы
+     */
+    public String getConstName(int id) {
+        String result = "";
+        try (Connection connect = dsR.getConnection();
+             PreparedStatement stm = connect.prepareStatement(GET_CONST_NAME)) {
             stm.setInt(1, id);
             ResultSet res = stm.executeQuery();
             if (res.next()) {

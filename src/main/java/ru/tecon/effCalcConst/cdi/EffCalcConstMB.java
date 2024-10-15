@@ -15,6 +15,7 @@ import ru.tecon.effCalcConst.model.StructTree;
 
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
+import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.view.ViewScoped;
 import javax.inject.Named;
@@ -53,8 +54,10 @@ public class EffCalcConstMB implements Serializable {
 
     private String prevFilterWord = "";
     private String filterWord = "";
-    private String address;
     private String redirect;
+    private String struct;
+    private boolean inIframe;
+    private boolean structTreeListIsEmpty;
     private static final Logger logger = Logger.getLogger(EffCalcConstMB.class.getName());
 
 
@@ -78,7 +81,9 @@ public class EffCalcConstMB implements Serializable {
         root = new DefaultTreeNode<>(new StructTree(), null);
         loadStructTree(login, selectedProp.getPropId(), filterWord);
         loadProperty();
+
         loadData();
+        struct = bean.getStruct(545);
 
     }
 
@@ -141,21 +146,22 @@ public class EffCalcConstMB implements Serializable {
      */
     public void onRowEdit(RowEditEvent<Const> event) {
         logger.info("update row " + event.getObject());
+
         if (selectedStructNode == null) {
             selectedStructNode = new DefaultTreeNode<>(structTreeList.get(0), null);
         }
+
         try {
             bean.updConst(ip, login, String.valueOf(event.getObject().getId()),
                     String.valueOf(event.getObject().getValue()), selectedStructNode.getData().getMyId());
-            if (selectedStructNode.getData().getMyType().equals("S144") || selectedStructNode.getData().getMyType().equals("S145")) {
-                redirect = "loadReport?id=" + selectedProp.getPropId() + "&objId=545" + "&amp;";
-            } else {
-                redirect = "loadReport?id=" + selectedProp.getPropId() + "&objId=" + selectedStructNode.getData().getMyId() + "&amp;";
-            }
         } catch (SystemParamException e) {
-            new TeconMessage(TeconMessage.SEVERITY_ERROR, "Ошибка сохранения", e.getMessage()).send();
+            if (inIframe) {
+                new TeconMessage(TeconMessage.SEVERITY_ERROR, "Ошибка сохранения", e.getMessage()).send();
+            } else {
+                FacesContext.getCurrentInstance()
+                        .addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Ошибка сохранения", e.getMessage()));
+            }
             PrimeFaces.current().ajax().update("growl");
-
         }
         loadData();
         PrimeFaces.current().ajax().update("effCalcConstForm:constTable1");
@@ -164,6 +170,7 @@ public class EffCalcConstMB implements Serializable {
         PrimeFaces.current().ajax().update("effCalcConstForm:constTable4");
         PrimeFaces.current().ajax().update("effCalcConstForm:constTable5");
         PrimeFaces.current().ajax().update("effCalcConstForm:constTable6");
+
     }
 
 
@@ -177,14 +184,8 @@ public class EffCalcConstMB implements Serializable {
         if (selectedStructNode == null) {
             selectedStructNode = new DefaultTreeNode<>(structTreeList.get(0), null);
         }
-
         tableData = bean.getParamHistory(constId, selectedStructNode.getData().getMyId());
 
-        if (selectedStructNode.getData().getMyType().equals("S144") || selectedStructNode.getData().getMyType().equals("S145")) {
-            redirect = "loadReport?id=" + id + "&objId=545" + "&amp;";
-        } else {
-            redirect = "loadReport?id=" + id + "&objId=" + selectedStructNode.getData().getMyId() + "&amp;";
-        }
     }
 
     /**
@@ -195,8 +196,12 @@ public class EffCalcConstMB implements Serializable {
             structTreeList.clear();
             root.getChildren().clear();
         }
-
         structTreeList = bean.getTreeParam(user, propId, filterWord);
+        if (structTreeList.isEmpty()) {
+            structTreeListIsEmpty = true;
+        } else {
+            structTreeListIsEmpty = false;
+        }
         Map<String, TreeNode<StructTree>> nodes = new HashMap<>();
         nodes.put(null, root);
 
@@ -221,12 +226,6 @@ public class EffCalcConstMB implements Serializable {
             if (selectedStructNode == null) {
                 selectedStructNode = new DefaultTreeNode<>(structTreeList.get(0), null);
             }
-
-            if (selectedStructNode.getData().getMyType().equals("S144") || selectedStructNode.getData().getMyType().equals("S145")) {
-                redirect = "loadReport?id=" + selectedProp.getPropId() + "&objId=545" + "&amp;";
-            } else {
-                redirect = "loadReport?id=" + selectedProp.getPropId() + "&objId=" + selectedStructNode.getData().getMyId() + "&amp;";
-            }
         }
     }
 
@@ -242,30 +241,72 @@ public class EffCalcConstMB implements Serializable {
      */
     public void selectNode() {
         loadData();
+        struct = bean.getStruct(selectedStructNode.getData().getMyId());
         PrimeFaces.current().ajax().update("effCalcConstForm:constTable1");
         PrimeFaces.current().ajax().update("effCalcConstForm:constTable2");
         PrimeFaces.current().ajax().update("effCalcConstForm:constTable3");
         PrimeFaces.current().ajax().update("effCalcConstForm:constTable4");
         PrimeFaces.current().ajax().update("effCalcConstForm:constTable5");
         PrimeFaces.current().ajax().update("effCalcConstForm:constTable6");
-        PrimeFaces.current().ajax().update("effCalcConstForm:toolbar");
+        PrimeFaces.current().ajax().update("effCalcConstForm:struct");
 
-        if (selectedStructNode.getData().getMyType().equals("S144") || selectedStructNode.getData().getMyType().equals("S145")) {
-            redirect = "loadReport?id=" + selectedProp.getPropId() + "&objId=545" + "&amp;";
-        } else {
-            redirect = "loadReport?id=" + selectedProp.getPropId() + "&objId=" + selectedStructNode.getData().getMyId() + "&amp;";
-        }        PrimeFaces.current().ajax().update("effCalcConstForm");
     }
 
     /**
      * Метод для фильтрации дерева объектов
      */
     public void filtering() {
+
         if (!prevFilterWord.equals(filterWord)) {
             loadStructTree(login, selectedProp.getPropId(), filterWord);
             PrimeFaces.current().ajax().update("effCalcConstForm:treeTableId");
             prevFilterWord = filterWord;
+            PrimeFaces.current().ajax().update("effCalcConstForm");
         }
+    }
+
+    /**
+     * Метод для загрузки отчета при нажатии на кнопку отчет
+     */
+    public void createReport() {
+        if (selectedStructNode == null) {
+            selectedStructNode = new DefaultTreeNode<>(structTreeList.get(0), null);
+        }
+        if (selectedStructNode.getData().getMyIcon().equals("fa fa-cubes cubesIcon")) {
+            redirect = "loadReport?id=0&objId=" + selectedStructNode.getData().getMyId() + "&repType=0" + "&amp;";
+        } else {
+            redirect = "loadReport?id=0&objId=" + selectedStructNode.getData().getMyId() + "&repType=1" + "&amp;";
+        }
+        PrimeFaces.current().executeScript("window.open('" + redirect + "', '_blank').focus();");
+        if (inIframe) {
+            PrimeFaces.current().executeScript("parent.postMessage({fileUrl: '" + redirect  + "'}, '*');");
+        }
+    }
+
+    /**
+     * Метод для загрузки отчета при нажатии на кнопку отчет
+     */
+    public void createReportParam() {
+        if (selectedStructNode == null) {
+            selectedStructNode = new DefaultTreeNode<>(structTreeList.get(0), null);
+        }
+        if (selectedStructNode.getData().getMyIcon().equals("fa fa-cubes cubesIcon")) {
+            redirect = "loadReport?id=" + id + "&objId=" + selectedStructNode.getData().getMyId() + "&repType=2" + "&amp;";
+        } else {
+            redirect = "loadReport?id=" + id + "&objId=" + selectedStructNode.getData().getMyId() + "&repType=3" + "&amp;";
+        }
+        PrimeFaces.current().executeScript("window.open('" + redirect + "', '_blank').focus();");
+        if (inIframe) {
+            PrimeFaces.current().executeScript("parent.postMessage({fileUrl: '" + redirect  + "'}, '*');");
+        }
+    }
+
+    /**
+     * Метод для проверки, находится ли страница во фрейме
+     */
+    public void changeInIframe() {
+        Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
+        inIframe = Boolean.parseBoolean(params.get("inIframe"));
     }
 
     private void loadProperty() {
@@ -400,19 +441,27 @@ public class EffCalcConstMB implements Serializable {
         this.filterWord = filterWord;
     }
 
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
     public String getRedirect() {
         return redirect;
     }
 
     public void setRedirect(String redirect) {
         this.redirect = redirect;
+    }
+
+    public String getStruct() {
+        return struct;
+    }
+
+    public void setStruct(String struct) {
+        this.struct = struct;
+    }
+
+    public boolean isStructTreeListIsEmpty() {
+        return structTreeListIsEmpty;
+    }
+
+    public void setStructTreeListIsEmpty(boolean structTreeListIsEmpty) {
+        this.structTreeListIsEmpty = structTreeListIsEmpty;
     }
 }

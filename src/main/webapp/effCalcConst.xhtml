@@ -12,16 +12,25 @@
    <h:outputStylesheet name="objTreeStyle.css" library="css"/>
    <h:outputStylesheet name="/font-awesome/6.4.2/css/all.min-jsf.css" library="webjars"/>
    <h:outputStylesheet name="/font-awesome/6.4.2/css/v4-shims.min-jsf.css" library="webjars"/>
+   <h:outputScript name="script.js" library="js"/>
+
+
 </h:head>
 <h:body style="height: 100%; margin: 0" >
    <p:growl id="growl" showDetail="true" />
 
+   <h:form>
+      <p:remoteCommand autoRun="true" onstart="iframeStatus([{name:'inIframe', value:inIframe()}]);" />
+      <p:remoteCommand name="iframeStatus" action="#{effCalcConst.changeInIframe()}"/>
+   </h:form>
+
    <h:form id="effCalcConstForm" style="height: 100%; display: flex; flex-direction: column; position: fixed">
+
 
       <div id="toolbar">
 
-         <div id="formName">
-            <h:outputText value="АВТОМАТИЗИРОВАННЫЙ РАСЧЕТ ЭФФЕКТА"/>
+         <div id="formName" style="justify-content: space-around">
+            СПРАВОЧНИК <br/> НОРМАТИВНЫХ ЗНАЧЕНИЙ
          </div>
 
          <div id="toolbarTable" >
@@ -94,10 +103,13 @@
                </div>
             </div>
 
-            <div class="customTD customCursor" style="min-width: 60px;" id="report" onclick="window.open('#{effCalcConst.redirect}'); return false">
+
+
+            <h:panelGroup class="customTD customCursor" style="min-width: 60px;" id="report" layout="block">
+
                <div class="contentField">
                   <h:outputText value="Отчет" styleClass="customToolbarButtonText"/>
-                  <ui:insert name="report"/>
+
                </div>
                <div class="botField">
 
@@ -105,7 +117,11 @@
                      <i class="fa fa-clone customIcon"/>
                   </div>
                </div>
-            </div>
+               <p:ajax event="click" listener="#{effCalcConst.createReport()}" process="@this" />
+
+            </h:panelGroup>
+
+
          </div>
       </div>
 
@@ -138,21 +154,28 @@
                   </tr>
                </table>
 
-               <div style="height: 100%; overflow: auto; background-color: #d9d9d9; cursor: pointer;" id="objTreeTable" class="tc-custom-scroll">
-                  <p:treeTable value="#{effCalcConst.root}" widgetVar="treeTable" var="structTree" id="treeTableId"
-                               selectionMode="single" selection="#{effCalcConst.selectedStructNode}">
+                  <p:tree value="#{effCalcConst.root}" widgetVar="treeTable" var="structTree" id="treeTableId"
+                               selectionMode="single" selection="#{effCalcConst.selectedStructNode}"
+                          style="height: 100%; overflow: auto; background-color: #d9d9d9;" class="tc-custom-scroll">
 
                      <p:ajax event="select"
                              listener="#{effCalcConst.selectNode}" onstart="PF('statusDialog').show();"
                              onsuccess="PF('statusDialog').hide();"/>
 
-                     <p:column>
-                        <i class="#{structTree.myIcon}" id="icon" style="vertical-align: middle; margin-right: 5px;"/>
-                        <h:outputText value="#{structTree.name}"/>
-                     </p:column>
+                     <p:treeNode>
+                        <i class="#{structTree.myIcon}" id="icon"
+                           style="vertical-align: middle; margin: 0 .5rem 0 0; "/>
+                        <h:outputText value="#{structTree.name}" style="padding: .286em;"/>
+                     </p:treeNode>
 
-                  </p:treeTable>
-               </div>
+
+                  </p:tree>
+
+               <h:panelGroup id="empty" rendered="#{effCalcConst.structTreeListIsEmpty}" layout="block" style="background-color: #d9d9d9;
+               display: flex; justify-content: center;">
+                  <h:outputText  value="Объекты не найдены..." style="display: flex; width: 19.7rem; background-color: #cce5ff;
+                  padding: .75rem 1.25rem; margin: .5rem .5rem 0; color: #004085; border-color: #b8daff; border-radius: .25rem; font-size: .92rem;"/>
+               </h:panelGroup>
 
                <table style="padding: .25rem; background-color: #d9d9d9; width: 100%">
                   <tr>
@@ -183,18 +206,33 @@
                   </tr>
                </table>
 
-               <div style=" background-color: #d9d9d9; width: 100%">
+               <h:panelGroup style=" background-color: #d9d9d9; width: 100%" layout="block">
                   <p:inputText value="#{effCalcConst.filterWord}" style="height: 2rem; width: 96%; margin-left: 5px;
                          margin-bottom: 10px; border-color: black;" placeholder="Введите значение свойства для фильтрации"/>
-                  <p:ajax event="keyup" listener="#{effCalcConst.filtering()}" global="false" process="@this"/>
-               </div>
+                  <p:ajax event="keyup" listener="#{effCalcConst.filtering()}" global="false" process="@this" delay="600"  onstart="PF('navigateAllBui').show();" oncomplete="PF('navigateAllBui').hide();"/>
+               </h:panelGroup>
             </div>
+
+            <p:blockUI block="treeTableId" widgetVar="navigateAllBui"/>
 
             <div>
                <div style="overflow: auto; height: 100%; margin-left: .5rem; width: calc(100% - .5rem)">
-                  <div style="height: 27px; width: 100%; text-align: center;">
-                     <h:outputText value="Справочник нормативных значений для расчета эффекта от применения алгоритмов" style="line-height: 30px;
-                           font-size: 20px; font-weight: 700;"/>
+
+                  <h:panelGroup style="height: 27px; width: 100%; text-align: start;" id="struct">
+                     <h:outputText value="#{effCalcConst.struct}" style="line-height: 30px; font-size: 20px; font-weight: 700;"/>
+                  </h:panelGroup>
+
+                  <div>
+                     <div >
+                        <p:dataTable id="headerTable" var="constData" widgetVar="constTable" value=""
+                                     showGridlines="true" editable="#{effCalcConst.write}" rowKey="#{constData.id}">
+
+                           <p:column headerText="Справочник нормативных значений для расчета эффекта от применения алгоритмов"
+                                      style="text-align: center" styleClass="constTable">
+                           </p:column>
+
+                        </p:dataTable>
+                     </div>
                   </div>
 
                   <div>
@@ -457,7 +495,7 @@
                                  <tr>
                                     <th></th>
                                     <th style="text-align: left;">
-                                       <h:outputText value="3.2.4 «Определение утечки теплоносителя путём анализа GП»"/>
+                                       <h:outputText value="3.2.4 «Определение утечки теплоносителя путём анализа Gп»"/>
                                     </th>
                                  </tr>
                                  <tr>
@@ -469,13 +507,13 @@
                                  <tr>
                                     <th></th>
                                     <th style="text-align: left;">
-                                       <h:outputText value="3.2.6 «Определение утечки горячей воды путём анализа GХВ»"/>
+                                       <h:outputText value="3.2.6 «Определение утечки горячей воды путём анализа Gхв»"/>
                                     </th>
                                  </tr>
                                  <tr>
                                     <th></th>
                                     <th style="text-align: left;">
-                                       <h:outputText value="3.2.7 «Определение утечки горячей воды путём анализа»"/>
+                                       <h:outputText value="3.2.7 «Определение утечки горячей воды путём анализа Qтс»"/>
                                     </th>
                                  </tr>
                               </table>
@@ -561,7 +599,7 @@
                               <table>
                                  <tr>
                                     <th>
-                                       <h:outputText value="Значения для алгоритма 3.2.8 «Устранение аварийных ситуаций (отклонения Т1, Т3, Т7 и   ΔР3-4, ΔР7-13)»" style="text-align: center"/>
+                                       <h:outputText value="Значения для алгоритма 3.2.8 «Устранение аварийных ситуаций (отклонения Т1, Т3, Т7 и ΔР1-2, ΔР3-4, ΔР7-13)»" style="text-align: center"/>
                                     </th>
                                  </tr>
                               </table>
@@ -650,7 +688,7 @@
                               <table>
                                  <tr>
                                     <th>
-                                       <h:outputText value="Значения для алгоритма 3.2.10 алгоритма «Выявление и устранение причин занижения температуры и/или изменения циркуляционных расходов воды в системах отопления»" style="text-align: center"/>
+                                       <h:outputText value="Значения для алгоритма 3.2.10 алгоритма «Выявление и устранение причин занижения температуры Т3 и/или изменения циркуляционных расходов воды в системах отопления»" style="text-align: center"/>
                                     </th>
                                  </tr>
                               </table>
@@ -733,11 +771,10 @@
       </div>
 
       <div style="display: flex; justify-content: flex-end; height: max-content; align-content: flex-end; margin-top: 20px;">
-         <p:button onclick="window.open('#{effCalcConst.redirect}'); return false"
+         <p:commandButton action="#{effCalcConst.createReportParam()}"
                    icon="pi pi-download" target="_blank" title="Загрузить отчет"/>
       </div>
 
    </p:dialog>
-
 </h:body>
 </html>

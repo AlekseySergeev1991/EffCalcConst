@@ -1,49 +1,16 @@
 body .ui-widget {
     font-size: .875rem;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
     font-weight: 400;
     line-height: 1.5;
     color: #212529;
-}
-
-body .ui-tree .ui-tree-filter-container .ui-icon {
-    top: 40%; !important;
 }
 
 .ui-filter-column {
     display:none;
 }
 
-.ui-treetable-footer {
-    position: absolute;
-    top: 54rem;
-    left: 0.469rem;
-}
-
-body .ui-treetable .ui-treetable-data>tr {
-    background-color: #d9d9d9;
-}
-
-body .ui-treetable .ui-treetable-data>tr>td {
-    padding: 0;
-    border: hidden;
-}
-
-body .ui-treetable .ui-treetable-data>tr:hover {
-    background: #EBEDEF;
-}
-
-body .ui-treetable .ui-treetable-data>tr.ui-state-highlight {
-    background: #0065c9;
-    color: white;
-}
-
 tr.ui-state-highlight .ui-widget-content{
     color:white;
-}
-
-body .ui-treetable .ui-treetable-footer {
-    padding: 0;
 }
 
 .customTreeIcon {
@@ -54,16 +21,12 @@ body .ui-treetable .ui-treetable-footer {
     text-overflow: ellipsis;
 }
 
-body .ui-inputfield {
-    padding: unset;
+.treeInput {
+    padding: unset !important;
     margin-left: 10px;
     margin-top: 3px;
     text-overflow: ellipsis;
     font-size: .875rem
-}
-
-body .ui-treetable thead th {
-    display: none;
 }
 
 .tc-custom-scroll .ui-tree-container,
@@ -117,11 +80,129 @@ body .ui-treetable thead th {
     display: none;
 }
 
-/*.ui-state-highlight,.ui-widget-content .ui-state-highlight,.ui-widget-header .ui-state-highlight*/
-/*{*/
-/*    background-color: green;*/
-/*}*/
+/*Обновленные иконки раскрытия и закрытия treeNode в tree и treeTable*/
 
-.customCellStyle {
-    background-color: yellow;
+body .ui-tree .ui-tree-container .ui-treenode .ui-treenode-content .ui-tree-toggler:before {
+    font-family: "Font Awesome 6 Free", sans-serif;
+    font-weight: 900;
+}
+
+body .ui-tree .ui-tree-container .ui-treenode .ui-treenode-content .ui-tree-toggler.ui-icon-triangle-1-s:before {
+    content: "\f0d7";
+}
+
+body .ui-tree .ui-tree-container .ui-treenode .ui-treenode-content .ui-tree-toggler.ui-icon-triangle-1-e:before {
+    content: "\f0da";
+}
+
+/*Стили деревьев с вертикальными и горизонтальными линиями*/
+/*Первая часть (вертикальная линия)*/
+.ui-treenode-children {
+    position: relative;
+}
+
+.ui-treenode-children::after {
+    content: '';
+    position: absolute;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.ui-treenode-children::after {
+    border-left: 1px dotted #a6a6a6;
+    height: 100%;
+    top: -16px;
+    left: -2.5px;
+}
+
+.ui-tree-container li:last-child>.ui-treenode-children::after {
+    display: none;
+}
+
+.ui-tree-container .tc-first-tree-item>.ui-treenode-children::after {
+    display: none;
+}
+
+/*Вторая часть (уголок)*/
+.ui-treenode-children .ui-treenode-content {
+    position: relative;
+}
+
+.ui-treenode-children .ui-treenode-content::before {
+    content: '';
+    position: absolute;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.ui-treenode-children .ui-treenode-content::before {
+    border-bottom: 1px dotted #a6a6a6;
+    border-left: 1px dotted #a6a6a6;
+    height: 27px;
+    top: -14px;
+    width: 13px;
+    left: -2.5px;
+}
+
+.ui-treenode-children .ui-treenode-leaf .ui-treenode-content::before {
+    width: 30px;
+}
+
+.ui-treenode-children .ui-tree-container .tc-first-tree-item>.ui-treenode-content::before {
+    display: none;
+}
+
+/*Стили выделения элементов дерева в закладке "Линкованные объекты / (Вычислимые параметры, Параметры)"*/
+
+body .ui-tree .ui-tree-container .ui-treenode .ui-treenode-content.ui-tree-selectable:not(.ui-state-highlight).ui-state-hover {
+    background: #eaeaea;
+    color: #333;
+    cursor: pointer;
+}
+
+body .ui-tree .ui-tree-container .ui-treenode-outline {
+    box-shadow: unset;
+}
+
+body .ui-tree {
+    border: hidden;
+    padding: 0;
+    border-radius: 0;
+    font-size: 14px;
+}
+body .ui-tree .ui-tree-container .ui-treenode {
+     padding: 0;
+}
+
+body .ui-tree .ui-tree-container .ui-treenode .ui-treenode-content {
+    height: 27px;
+}
+
+.ui-tree .ui-tree-container {
+    overflow: unset !important;
+}
+
+body .ui-tree .ui-tree-container .ui-treenode .ui-treenode-content .ui-tree-toggler {
+    margin: 0;
+    color: rgb(0 0 0 /60%) !important;
+}
+
+
+body .ui-tree .ui-tree-container .ui-treenode .ui-treenode-content .ui-treenode-leaf-icon {
+    width: 1.8rem;
+}
+
+.cubesIcon {
+    color: rgb(0 0 0 /60%);
+    font-size: 0.92rem
+}
+
+.linkIcon {
+    color: rgb(0 0 0 /60%);
+    font-size: 0.75rem
+}
+
+body .ui-tree .ui-tree-container .ui-treenode .ui-treenode-content.ui-state-highlight {
+    background: #0065c9;
+    color: black;
 }
