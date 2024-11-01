@@ -19,6 +19,7 @@ import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.view.ViewScoped;
 import javax.inject.Named;
+import javax.servlet.http.HttpServletRequest;
 import java.io.Serializable;
 import java.util.*;
 import java.util.logging.Level;
@@ -269,35 +270,43 @@ public class EffCalcConstMB implements Serializable {
      * Метод для загрузки отчета при нажатии на кнопку отчет
      */
     public void createReport() {
+        HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+        String url = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath() + "/";
         if (selectedStructNode == null) {
             selectedStructNode = new DefaultTreeNode<>(structTreeList.get(0), null);
         }
         if (selectedStructNode.getData().getMyIcon().equals("fa fa-cubes cubesIcon")) {
-            redirect = "loadReport?id=0&objId=" + selectedStructNode.getData().getMyId() + "&repType=0" + "&amp;";
+            redirect = url + "loadReport?id=0&objId=" + selectedStructNode.getData().getMyId() + "&repType=0" + "&amp;";
         } else {
-            redirect = "loadReport?id=0&objId=" + selectedStructNode.getData().getMyId() + "&repType=1" + "&amp;";
+            redirect = url + "loadReport?id=0&objId=" + selectedStructNode.getData().getMyId() + "&repType=1" + "&amp;";
         }
-        PrimeFaces.current().executeScript("window.open('" + redirect + "', '_blank').focus();");
         if (inIframe) {
-            PrimeFaces.current().executeScript("parent.postMessage({fileUrl: '" + redirect  + "'}, '*');");
+            PrimeFaces.current().executeScript("window.parent.postMessage({fileUrl: '" + redirect + "'}, '*');");
+        } else {
+            PrimeFaces.current().executeScript("window.open('" + redirect + "', '_blank').focus();");
         }
+        FacesContext.getCurrentInstance().getExternalContext().getRequest();
     }
 
     /**
      * Метод для загрузки отчета при нажатии на кнопку отчет
      */
     public void createReportParam() {
+        HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+        String url = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath() + "/";
         if (selectedStructNode == null) {
             selectedStructNode = new DefaultTreeNode<>(structTreeList.get(0), null);
         }
         if (selectedStructNode.getData().getMyIcon().equals("fa fa-cubes cubesIcon")) {
-            redirect = "loadReport?id=" + id + "&objId=" + selectedStructNode.getData().getMyId() + "&repType=2" + "&amp;";
+            redirect = url + "loadReport?id=" + id + "&objId=" + selectedStructNode.getData().getMyId() + "&repType=2" + "&amp;";
         } else {
-            redirect = "loadReport?id=" + id + "&objId=" + selectedStructNode.getData().getMyId() + "&repType=3" + "&amp;";
+            redirect = url + "loadReport?id=" + id + "&objId=" + selectedStructNode.getData().getMyId() + "&repType=3" + "&amp;";
         }
-        PrimeFaces.current().executeScript("window.open('" + redirect + "', '_blank').focus();");
         if (inIframe) {
-            PrimeFaces.current().executeScript("parent.postMessage({fileUrl: '" + redirect  + "'}, '*');");
+            PrimeFaces.current().executeScript("window.parent.postMessage({fileUrl: '" + redirect + "'}, '*');");
+        } else {
+            PrimeFaces.current().executeScript("window.open('" + redirect + "', '_blank').focus();");
+
         }
     }
 
