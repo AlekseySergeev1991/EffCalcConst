@@ -1,5 +1,12 @@
 package ru.tecon.effCalcConst.cdi;
 
+import jakarta.annotation.PostConstruct;
+import jakarta.ejb.EJB;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.view.ViewScoped;
+import jakarta.inject.Named;
+import jakarta.servlet.http.HttpServletRequest;
 import org.primefaces.PrimeFaces;
 import org.primefaces.event.RowEditEvent;
 import org.primefaces.model.DefaultTreeNode;
@@ -13,13 +20,7 @@ import ru.tecon.effCalcConst.model.ObjProp;
 import ru.tecon.effCalcConst.model.ParamHistory;
 import ru.tecon.effCalcConst.model.StructTree;
 
-import javax.annotation.PostConstruct;
-import javax.ejb.EJB;
-import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
-import javax.faces.view.ViewScoped;
-import javax.inject.Named;
-import javax.servlet.http.HttpServletRequest;
+
 import java.io.Serializable;
 import java.util.*;
 import java.util.logging.Level;
@@ -59,6 +60,7 @@ public class EffCalcConstMB implements Serializable {
     private String struct;
     private boolean inIframe;
     private boolean structTreeListIsEmpty;
+    private Const clearConst;
     private static final Logger logger = Logger.getLogger(EffCalcConstMB.class.getName());
 
 
@@ -118,11 +120,6 @@ public class EffCalcConstMB implements Serializable {
                     alg3_2_1.add(temp);
                     break;
                 case (4):
-                    if (temp.getId() == 11) {
-                        temp.setBool(true);
-                    } else {
-                        temp.setBool(false);
-                    }
                     alg3_2_2.add(temp);
                     break;
                 case (5):
@@ -310,6 +307,25 @@ public class EffCalcConstMB implements Serializable {
         }
     }
 
+    public void fullClear(String parName, int constId) {
+        id = constId;
+        name = parName;
+        List <Const> constList;
+        if (selectedStructNode == null) {
+            selectedStructNode = new DefaultTreeNode<>(structTreeList.get(0), null);
+        }
+        constList = bean.getConst(selectedStructNode.getData().getMyId());
+        for (Const temp:constList) {
+            if (temp.getId() == constId) {
+                clearConst = temp;
+            }
+        }
+    }
+
+    public void confirmClear() throws SystemParamException {
+        bean.clearConst(ip, login, String.valueOf(clearConst.getId()), selectedStructNode.getData().getMyId());
+    }
+
     /**
      * Метод для проверки, находится ли страница во фрейме
      */
@@ -472,5 +488,13 @@ public class EffCalcConstMB implements Serializable {
 
     public void setStructTreeListIsEmpty(boolean structTreeListIsEmpty) {
         this.structTreeListIsEmpty = structTreeListIsEmpty;
+    }
+
+    public Const getClearConst() {
+        return clearConst;
+    }
+
+    public void setClearConst(Const clearConst) {
+        this.clearConst = clearConst;
     }
 }

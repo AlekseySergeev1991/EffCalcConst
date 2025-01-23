@@ -1,13 +1,14 @@
 package ru.tecon.effCalcConst.converter;
 
+import jakarta.el.ValueExpression;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.convert.Converter;
+import jakarta.faces.convert.FacesConverter;
 import ru.tecon.effCalcConst.cdi.EffCalcConstMB;
 import ru.tecon.effCalcConst.model.ObjProp;
 
-import javax.el.ValueExpression;
-import javax.faces.component.UIComponent;
-import javax.faces.context.FacesContext;
-import javax.faces.convert.Converter;
-import javax.faces.convert.FacesConverter;
+
 
 /**
  * Конвертер для выбора свойства объекта

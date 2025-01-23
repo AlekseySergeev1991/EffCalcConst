@@ -300,9 +300,13 @@
 
                                        <p:contextMenu id="constTable1Context" for="constTable1Panel">
                                           <p:menuitem value="Посмотреть историю"
-                                                      action="#{effCalcConst.loadHistData(constData1.name,constData1.id)}"
+                                                      action="#{effCalcConst.loadHistData(constData1.name, constData1.id)}"
                                                       oncomplete="PF('historyDialog').show()"
                                                       update="historyDialogID" process="@this" />
+                                          <p:menuitem value="Сбросить значение" rendered="#{effCalcConst.selectedStructNode.data.myIcon ne 'fa fa-link fa-rotate-90 linkIcon'}"
+                                                      action="#{effCalcConst.fullClear(constData1.name, constData1.id)}"
+                                                      oncomplete="PF('clearDialog').show()"
+                                                      update="clearDialogID" process="@this" />
                                        </p:contextMenu>
                                     </p:outputPanel>
                                  </f:facet>
@@ -362,9 +366,13 @@
 
                                        <p:contextMenu id="constTable2Context" for="constTable2Panel">
                                           <p:menuitem value="Посмотреть историю"
-                                                      action="#{effCalcConst.loadHistData(constData2.name,constData2.id)}"
+                                                      action="#{effCalcConst.loadHistData(constData2.name, constData2.id)}"
                                                       oncomplete="PF('historyDialog').show()"
                                                       update="historyDialogID" process="@this" />
+                                          <p:menuitem value="Сбросить значение" rendered="#{effCalcConst.selectedStructNode.data.myIcon ne 'fa fa-link fa-rotate-90 linkIcon'}"
+                                                      action="#{effCalcConst.fullClear(constData2.name, constData2.id)}"
+                                                      oncomplete="PF('clearDialog').show()"
+                                                      update="clearDialogID" process="@this" />
                                        </p:contextMenu>
                                     </p:outputPanel>
                                  </f:facet>
@@ -424,9 +432,13 @@
 
                                        <p:contextMenu id="constTable3Context" for="constTable3Panel">
                                           <p:menuitem value="Посмотреть историю"
-                                                      action="#{effCalcConst.loadHistData(constData3.name,constData3.id)}"
+                                                      action="#{effCalcConst.loadHistData(constData3.name, constData3.id)}"
                                                       oncomplete="PF('historyDialog').show()"
                                                       update="historyDialogID" process="@this" />
+                                          <p:menuitem value="Сбросить значение" rendered="#{effCalcConst.selectedStructNode.data.myIcon ne 'fa fa-link fa-rotate-90 linkIcon'}"
+                                                      action="#{effCalcConst.fullClear(constData3.name, constData3.id)}"
+                                                      oncomplete="PF('clearDialog').show()"
+                                                      update="clearDialogID" process="@this" />
                                        </p:contextMenu>
                                     </p:outputPanel>
                                  </f:facet>
@@ -443,9 +455,13 @@
 
                                        <p:contextMenu id="constTable3DopContext" for="constTable3DopPanel">
                                           <p:menuitem value="Посмотреть историю"
-                                                      action="#{effCalcConst.loadHistData(constData3.name,constData3.id)}"
+                                                      action="#{effCalcConst.loadHistData(constData3.name, constData3.id)}"
                                                       oncomplete="PF('historyDialog').show()"
                                                       update="historyDialogID" process="@this" />
+                                          <p:menuitem value="Сбросить значение" rendered="#{effCalcConst.selectedStructNode.data.myIcon ne 'fa fa-link fa-rotate-90 linkIcon'}"
+                                                      action="#{effCalcConst.fullClear(constData3.name, constData3.id)}"
+                                                      oncomplete="PF('clearDialog').show()"
+                                                      update="clearDialogID" process="@this" />
                                        </p:contextMenu>
                                     </p:outputPanel>
                                  </f:facet>
@@ -531,7 +547,7 @@
                            <p:column style="width: 7.7%; text-align: center">
                               <h:outputText style="display: block;" escape="false" value="#{constData4.measure}" />
                            </p:column>
-                           <p:column style="width: 7.8%; text-align: center"  rendered="#{constData4.bool}" styleClass="#{constData4.getIsGlobal() eq '1' ? 'customCellStyle' : ''}">
+                           <p:column style="width: 7.8%; text-align: center"  styleClass="#{constData4.getIsGlobal() eq '1' ? 'customCellStyle' : ''}">
                               <p:cellEditor disabled="#{!effCalcConst.write}">
                                  <f:facet name="output">
                                     <p:outputPanel id="constTable4Panel">
@@ -539,9 +555,13 @@
 
                                        <p:contextMenu id="constTable4Context" for="constTable4Panel">
                                           <p:menuitem value="Посмотреть историю"
-                                                      action="#{effCalcConst.loadHistData(constData4.name,constData4.id)}"
+                                                      action="#{effCalcConst.loadHistData(constData4.name, constData4.id)}"
                                                       oncomplete="PF('historyDialog').show()"
                                                       update="historyDialogID" process="@this" />
+                                          <p:menuitem value="Сбросить значение" rendered="#{effCalcConst.selectedStructNode.data.myIcon ne 'fa fa-link fa-rotate-90 linkIcon'}"
+                                                      action="#{effCalcConst.fullClear(constData4.name, constData4.id)}"
+                                                      oncomplete="PF('clearDialog').show()"
+                                                      update="clearDialogID" process="@this" />
                                        </p:contextMenu>
                                     </p:outputPanel>
                                  </f:facet>
@@ -550,30 +570,7 @@
                                  </f:facet>
                               </p:cellEditor>
                            </p:column>
-                           <p:column style="width: 7.8%; text-align: center"  rendered="#{!constData4.bool}" styleClass="#{constData4.getIsGlobal() eq '1' ? 'customCellStyle' : ''}">
-                              <p:cellEditor disabled="#{!effCalcConst.write}">
-                                 <f:facet name="output">
-                                    <p:outputPanel id="constTable4DopPanel">
-                                       <h:outputText style="display: block;" escape="false" value="#{constData4.value}" />
 
-                                       <p:contextMenu id="constTable4DopContext" for="constTable4DopPanel">
-                                          <p:menuitem value="Посмотреть историю"
-                                                      action="#{effCalcConst.loadHistData(constData4.name,constData4.id)}"
-                                                      oncomplete="PF('historyDialog').show()"
-                                                      update="historyDialogID" process="@this" />
-                                       </p:contextMenu>
-                                    </p:outputPanel>
-                                 </f:facet>
-                                 <f:facet name="input">
-                                    <h:selectOneMenu value="#{constData4.value}" style="width:100%; height: 2rem; text-align: center; font-size: 1rem;
-                                 color: #495057; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto , 'Helvetica Neue',  Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'">
-                                       <f:selectItem itemValue="5" itemLabel="5"/>
-                                       <f:selectItem itemValue="15" itemLabel="15"/>
-
-                                    </h:selectOneMenu>
-                                 </f:facet>
-                              </p:cellEditor>
-                           </p:column>
                            <p:column style="width: 16.7%">
                               <h:outputText style="display: block;" escape="false" value="#{constData4.edit}"/>
                            </p:column>
@@ -625,9 +622,13 @@
 
                                        <p:contextMenu id="constTable5Context" for="constTable5Panel">
                                           <p:menuitem value="Посмотреть историю"
-                                                      action="#{effCalcConst.loadHistData(constData5.name,constData5.id)}"
+                                                      action="#{effCalcConst.loadHistData(constData5.name, constData5.id)}"
                                                       oncomplete="PF('historyDialog').show()"
                                                       update="historyDialogID" process="@this" />
+                                          <p:menuitem value="Сбросить значение" rendered="#{effCalcConst.selectedStructNode.data.myIcon ne 'fa fa-link fa-rotate-90 linkIcon'}"
+                                                      action="#{effCalcConst.fullClear(constData5.name, constData5.id)}"
+                                                      oncomplete="PF('clearDialog').show()"
+                                                      update="clearDialogID" process="@this" />
 
                                        </p:contextMenu>
                                     </p:outputPanel>
@@ -645,9 +646,13 @@
 
                                        <p:contextMenu id="constTable5DopContext" for="constTable5DopPanel">
                                           <p:menuitem value="Посмотреть историю"
-                                                      action="#{effCalcConst.loadHistData(constData5.name,constData5.id)}"
+                                                      action="#{effCalcConst.loadHistData(constData5.name, constData5.id)}"
                                                       oncomplete="PF('historyDialog').show()"
                                                       update="historyDialogID" process="@this" />
+                                          <p:menuitem value="Сбросить значение" rendered="#{effCalcConst.selectedStructNode.data.myIcon ne 'fa fa-link fa-rotate-90 linkIcon'}"
+                                                      action="#{effCalcConst.fullClear(constData5.name, constData5.id)}"
+                                                      oncomplete="PF('clearDialog').show()"
+                                                      update="clearDialogID" process="@this" />
 
                                        </p:contextMenu>
                                     </p:outputPanel>
@@ -714,9 +719,13 @@
 
                                        <p:contextMenu id="constTable6Context" for="constTable6Panel">
                                           <p:menuitem value="Посмотреть историю"
-                                                      action="#{effCalcConst.loadHistData(constData6.name,constData6.id)}"
+                                                      action="#{effCalcConst.loadHistData(constData6.name, constData6.id)}"
                                                       oncomplete="PF('historyDialog').show()"
                                                       update="historyDialogID" process="@this" />
+                                          <p:menuitem value="Сбросить значение" rendered="#{effCalcConst.selectedStructNode.data.myIcon ne 'fa fa-link fa-rotate-90 linkIcon'}"
+                                                      action="#{effCalcConst.fullClear(constData6.name, constData6.id)}"
+                                                      oncomplete="PF('clearDialog').show()"
+                                                      update="clearDialogID" process="@this" />
 
                                        </p:contextMenu>
                                     </p:outputPanel>
@@ -776,5 +785,21 @@
       </div>
 
    </p:dialog>
+
+   <p:dialog id="clearDialogID" widgetVar="clearDialog" modal="true"
+             resizable="false" width="700" height="auto" >
+      <h:outputText value="#{effCalcConst.name}" style="text-align: left; font-weight: 700; font-size: 1.5rem;"/>
+      <br/>
+      <br/>
+      <h:outputText value="Вы уверенны, что хотите сбросить значения для всех элементов, входящих в состав данной структурной единицы?" style="text-align: center; font-weight: 700; font-size: 1.25rem;"/>
+
+
+      <div style="display: flex; justify-content: flex-end; height: max-content; align-content: flex-end; margin-top: 20px;">
+         <p:commandButton action="#{effCalcConst.confirmClear()}" value="Да" target="_blank" oncomplete="PF('clearDialog').hide()"/>
+         <p:commandButton oncomplete="PF('clearDialog').hide()" value="Нет" style="margin-left: 10px" />
+      </div>
+
+   </p:dialog>
+
 </h:body>
 </html>

@@ -1,20 +1,21 @@
 package ru.tecon.effCalcConst.servlet;
 
 
+import jakarta.ejb.EJB;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import ru.tecon.effCalcConst.ejb.CheckUserSB;
 
-import javax.ejb.EJB;
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-@WebServlet ("/effCalcConst")
+@WebServlet("/effCalcConst")
 public class Servlet extends HttpServlet {
     private static final Logger logger = Logger.getLogger(Servlet.class.getName());
 
@@ -30,12 +31,12 @@ public class Servlet extends HttpServlet {
             } else {
                 // Авторизуйтесь в системе
                 logger.log(Level.WARNING, "authorization error");
-                req.getRequestDispatcher("/error.html").forward(req, resp);
+                req.getRequestDispatcher("/error.xhtml").forward(req, resp);
             }
         } else {
             // Не хватает параметров
             logger.log(Level.WARNING, "missing parameters");
-            req.getRequestDispatcher("/error.html").forward(req, resp);
+            req.getRequestDispatcher("/error.xhtml").forward(req, resp);
         }
     }
 }

@@ -1,5 +1,8 @@
 package ru.tecon.effCalcConst.ejb;
 
+import jakarta.annotation.Resource;
+import jakarta.ejb.LocalBean;
+import jakarta.ejb.Stateless;
 import org.postgresql.util.PSQLException;
 import ru.tecon.effCalcConst.SystemParamException;
 import ru.tecon.effCalcConst.model.Const;
@@ -7,9 +10,7 @@ import ru.tecon.effCalcConst.model.ObjProp;
 import ru.tecon.effCalcConst.model.ParamHistory;
 import ru.tecon.effCalcConst.model.StructTree;
 
-import javax.annotation.Resource;
-import javax.ejb.LocalBean;
-import javax.ejb.Stateless;
+
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -38,6 +39,7 @@ public class EffCalcConstSB {
     private static final String GET_OBJ_NAME = "select * from eff_calc.get_name_from_id(?)";
     private static final String GET_STRUCT = "select * from eff_calc.text_struct_no_user(?)";
     private static final String GET_CONST_NAME = "select * from eff_calc_001.get_name_from_const_id(?)";
+    private static final String CLEAR_CHILDREN_CONST = "call eff_calc_001.reset_constant(?,?,?,?)";
 
     @Resource(name = "jdbc/DataSource")
     private DataSource dsRw;
@@ -254,5 +256,31 @@ public class EffCalcConstSB {
             logger.log(Level.WARNING, "SQLException", e);
         }
         return result;
+    }
+
+    /**
+     * Метод для сброса значения константы
+     * @param ip_addr - ip
+     * @param user_id - id юзера
+     * @param const_id - id константы
+     */
+    public void clearConst (String ip_addr, String user_id, String const_id, int obj_id) throws SystemParamException {
+        try (Connection connect = dsRw.getConnection();
+             PreparedStatement stm = connect.prepareStatement(CLEAR_CHILDREN_CONST)) {
+            stm.setString(1, ip_addr);
+            stm.setString(2, user_id);
+            stm.setString(3, const_id);
+            stm.setInt(4, obj_id);
+            stm.executeUpdate();
+        } catch (SQLException e) {
+            logger.log(Level.WARNING, "clear Const error", e);
+            if (e.getSQLState().equals("11111")) {
+                if (e instanceof PSQLException) {
+                    PSQLException exception = (PSQLException)e;
+                    String ex = exception.getServerErrorMessage().getMessage();
+                    throw new SystemParamException(ex);
+                }
+            } else throw new SystemParamException("Внутренняя ошибка сервера");
+        }
     }
 }
